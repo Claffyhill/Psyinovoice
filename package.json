@@ -1,0 +1,31 @@
+{
+  "name": "psyinvoice-server",
+  "version": "1.0.0",
+  "description": "API backend de PsyInvoice - Gestión de pacientes y facturación para psicólogos autónomos",
+  "type": "module",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "pdfkit": "^0.19.1",
+    "pg": "^8.12.0"
+  },
+  "keywords": [
+    "psicologos",
+    "facturacion",
+    "gestion-pacientes",
+    "nodejs",
+    "express",
+    "postgresql"
+  ],
+  "author": "",
+  "license": "ISC"
+}
