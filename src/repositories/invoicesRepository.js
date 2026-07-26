@@ -197,3 +197,112 @@ export async function updateStatus(id, estado) {
     return findById(id);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * Busca si ya existe una factura mensual para ese paciente/año/mes.
+ * Se usa para dar un mensaje de error claro ANTES de intentar el INSERT
+ * (el índice único parcial de la migración 004 actúa como red de seguridad
+ * final ante condiciones de carrera).
+ */
+export async function findByPatientAndBillingPeriod(patientId, year, month) {
+    const { rows } = await pool.query(
+        `SELECT id, numero_factura
+         FROM invoices
+         WHERE patient_id = $1 AND billing_year = $2 AND billing_month = $3`,
+        [patientId, year, month]
+    );
+    return rows[0] || null;
+}
+
+/**
+ * Crea la factura mensual de un paciente a partir de sus sesiones
+ * 'completed' no facturadas de ese año/mes. Todo ocurre en una única
+ * transacción:
+ *   1. bloquea las citas pendientes de ese paciente/periodo (FOR UPDATE)
+ *      para que dos peticiones concurrentes no puedan facturar las mismas
+ *      sesiones dos veces;
+ *   2. si no hay ninguna sesión pendiente, no crea nada y devuelve null
+ *      (la comprobación se hace aquí, no confiando en lo que haya calculado
+ *      el caller momentos antes);
+ *   3. calcula el importe sumando amount_cents de esas citas (nunca se usa
+ *      un total recibido del frontend);
+ *   4. bloquea settings, calcula el número de factura, inserta la factura
+ *      y vincula cada cita en invoice_appointments;
+ *   5. incrementa el contador de numeración.
+ * El UNIQUE(appointment_id) de invoice_appointments y el índice único
+ * parcial (patient_id, billing_year, billing_month) de invoices actúan
+ * como red de seguridad final a nivel de base de datos.
+ */
+export async function createMonthlyInvoice({ patientId, year, month, concepto }) {
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        const { rows: pendientes } = await client.query(
+            `SELECT a.id, a.amount_cents
+             FROM appointments a
+             WHERE a.patient_id = $1
+               AND a.status = 'completed'
+               AND EXTRACT(YEAR FROM a.appointment_date) = $2
+               AND EXTRACT(MONTH FROM a.appointment_date) = $3
+               AND NOT EXISTS (
+                   SELECT 1 FROM invoice_appointments ia WHERE ia.appointment_id = a.id
+               )
+             ORDER BY a.appointment_date
+             FOR UPDATE OF a`,
+            [patientId, year, month]
+        );
+
+        if (pendientes.length === 0) {
+            await client.query('ROLLBACK');
+            return null;
+        }
+
+        const totalCentimos = pendientes.reduce((suma, cita) => suma + cita.amount_cents, 0);
+
+        const { rows: settingsRows } = await client.query(
+            `SELECT id, prefijo_factura, siguiente_numero FROM settings ORDER BY id LIMIT 1 FOR UPDATE`
+        );
+        const settings = settingsRows[0];
+        const numeroFactura = formatInvoiceNumber(settings.prefijo_factura, settings.siguiente_numero, year);
+
+        const fechaEmision = new Date(Date.UTC(year, month, 0)); // último día del mes facturado
+
+        const { rows: invoiceRows } = await client.query(
+            `INSERT INTO invoices (
+                numero_factura, fecha, patient_id, concepto, importe_centimos,
+                tipo_iva, iva_centimos, total_centimos, estado,
+                billing_year, billing_month, session_count
+             )
+             VALUES ($1, $2, $3, $4, $5, 'exento', 0, $5, 'pendiente', $6, $7, $8)
+             RETURNING id`,
+            [numeroFactura, fechaEmision, patientId, concepto, totalCentimos, year, month, pendientes.length]
+        );
+        const invoiceId = invoiceRows[0].id;
+
+        for (const cita of pendientes) {
+            await client.query(
+                `INSERT INTO invoice_appointments (invoice_id, appointment_id) VALUES ($1, $2)`,
+                [invoiceId, cita.id]
+            );
+        }
+
+        await client.query(
+            `UPDATE settings SET siguiente_numero = siguiente_numero + 1 WHERE id = $1`,
+            [settings.id]
+        );
+
+        await client.query('COMMIT');
+
+        return findById(invoiceId);
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+>>>>>>> 3d2b9cc (v. calendario bdd)

@@ -83,4 +83,63 @@ export async function updateInvoiceStatus(id, estado) {
     return invoice;
 }
 
+<<<<<<< HEAD
+=======
+const ANIO_MINIMO = 2000;
+const ANIO_MAXIMO = 2100;
+
+const NOMBRES_MES = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+];
+
+/**
+ * Crea la factura mensual de un paciente agrupando sus sesiones 'completed'
+ * no facturadas de ese año/mes. Valida entrada, delega el cálculo de
+ * importes y la comprobación de duplicados a la base de datos (dentro de
+ * una transacción en el repository), y traduce el resultado a errores
+ * HTTP claros.
+ */
+export async function createMonthlyInvoice(data) {
+    if (!data.patientId) {
+        throw httpError(400, 'Debes indicar un paciente');
+    }
+
+    const patient = await patientsRepository.findById(data.patientId);
+    if (!patient) {
+        throw httpError(400, 'El paciente indicado no existe');
+    }
+
+    const year = Number(data.year);
+    const month = Number(data.month);
+
+    if (!data.year || !Number.isInteger(year) || year < ANIO_MINIMO || year > ANIO_MAXIMO) {
+        throw httpError(400, `El año debe ser un número entero entre ${ANIO_MINIMO} y ${ANIO_MAXIMO}`);
+    }
+    if (!data.month || !Number.isInteger(month) || month < 1 || month > 12) {
+        throw httpError(400, 'El mes debe ser un número entero entre 1 y 12');
+    }
+
+    const yaExiste = await invoicesRepository.findByPatientAndBillingPeriod(patient.id, year, month);
+    if (yaExiste) {
+        throw httpError(409, `Ya existe una factura mensual para ${patient.nombre} ${patient.apellidos} en ${NOMBRES_MES[month - 1]} de ${year} (${yaExiste.numero_factura})`);
+    }
+
+    const concepto = `Sesiones de psicología sanitaria — ${NOMBRES_MES[month - 1]} de ${year}`;
+
+    const invoice = await invoicesRepository.createMonthlyInvoice({
+        patientId: patient.id,
+        year,
+        month,
+        concepto
+    });
+
+    if (!invoice) {
+        throw httpError(400, `No hay sesiones realizadas y sin facturar de ${patient.nombre} ${patient.apellidos} en ${NOMBRES_MES[month - 1]} de ${year}`);
+    }
+
+    return invoice;
+}
+
+>>>>>>> 3d2b9cc (v. calendario bdd)
 

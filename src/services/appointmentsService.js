@@ -6,7 +6,11 @@ import * as settingsService from './settingsService.js';
 import { calcularHoraFin, normalizarHora } from '../utils/timeSlots.js';
 import { httpError } from '../utils/httpError.js';
 
+<<<<<<< HEAD
 const ESTADOS_VALIDOS = ['pending', 'confirmed', 'completed', 'cancelled', 'no_show'];
+=======
+const ESTADOS_VALIDOS = ['scheduled', 'completed', 'cancelled', 'no_show'];
+>>>>>>> 3d2b9cc (v. calendario bdd)
 
 function validarFecha(fecha) {
     if (!fecha || !/^\d{4}-\d{2}-\d{2}$/.test(fecha) || Number.isNaN(new Date(fecha).getTime())) {
@@ -63,7 +67,11 @@ export async function createAppointment(data) {
 
     const { amountCents } = await validarDatosComunes(data);
 
+<<<<<<< HEAD
     const estado = data.status || 'confirmed';
+=======
+    const estado = data.status || 'scheduled';
+>>>>>>> 3d2b9cc (v. calendario bdd)
     if (!ESTADOS_VALIDOS.includes(estado)) {
         throw httpError(400, 'El estado indicado no es válido');
     }
@@ -158,6 +166,30 @@ export async function updateAppointmentStatus(id, status) {
     return appointmentsRepository.findById(id);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * Reprograma una cita: cambia fecha y/u hora conservando paciente, importe
+ * y notas actuales. Reutiliza updateAppointment, que ya revalida toda la
+ * disponibilidad (horario semanal, bloqueos y solapamientos) para la nueva
+ * fecha/hora antes de guardar.
+ */
+export async function rescheduleAppointment(id, data) {
+    validarFecha(data.appointmentDate);
+    validarHora(data.startTime);
+
+    const existente = await getAppointment(id);
+
+    return updateAppointment(id, {
+        patientId: existente.patientId,
+        appointmentDate: data.appointmentDate,
+        startTime: data.startTime,
+        amountCents: existente.amountCents,
+        administrativeNotes: existente.administrativeNotes
+    });
+}
+
+>>>>>>> 3d2b9cc (v. calendario bdd)
 export async function getDefaultAmountCents() {
     const settings = await settingsService.getSettings();
     return settings.precio_defecto_centimos;
@@ -190,3 +222,41 @@ export async function getBillingSummary(yearParam, monthParam) {
         alreadyInvoiced: grupo.alreadyInvoiced
     }));
 }
+<<<<<<< HEAD
+=======
+
+function validarAnioMes(yearParam, monthParam) {
+    const year = Number(yearParam);
+    const month = Number(monthParam);
+
+    if (!yearParam || !Number.isInteger(year) || year < ANIO_MINIMO || year > ANIO_MAXIMO) {
+        throw httpError(400, `El año debe ser un número entero entre ${ANIO_MINIMO} y ${ANIO_MAXIMO}`);
+    }
+    if (!monthParam || !Number.isInteger(month) || month < MES_MINIMO || month > MES_MAXIMO) {
+        throw httpError(400, 'El mes debe ser un número entero entre 1 y 12');
+    }
+
+    return { year, month };
+}
+
+/**
+ * Sesiones realizadas y todavía NO facturadas de un mes, agrupadas por
+ * paciente. A diferencia de getBillingSummary, aquí lo ya facturado no
+ * aparece en absoluto (no solo se marca), porque esta vista alimenta la
+ * pantalla de "facturación pendiente".
+ */
+export async function getPendingBillingSummary(yearParam, monthParam) {
+    const { year, month } = validarAnioMes(yearParam, monthParam);
+
+    const grupos = await appointmentsRepository.findPendingGroupedByMonth(year, month);
+
+    return grupos.map((grupo) => ({
+        patientId: grupo.patientId,
+        patientName: `${grupo.patientFirstName} ${grupo.patientLastName}`,
+        sessionCount: grupo.sessionCount,
+        totalCents: grupo.totalCents,
+        appointmentIds: grupo.appointmentIds,
+        appointmentDates: grupo.appointmentDates
+    }));
+}
+>>>>>>> 3d2b9cc (v. calendario bdd)

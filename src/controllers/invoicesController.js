@@ -21,6 +21,18 @@ export async function createInvoice(req, res, next) {
     }
 }
 
+<<<<<<< HEAD
+=======
+export async function createMonthlyInvoice(req, res, next) {
+    try {
+        const invoice = await invoicesService.createMonthlyInvoice(req.body);
+        res.status(201).json(invoice);
+    } catch (err) {
+        next(err);
+    }
+}
+
+>>>>>>> 3d2b9cc (v. calendario bdd)
 export async function updateInvoiceStatus(req, res, next) {
     try {
         const invoice = await invoicesService.updateInvoiceStatus(req.params.id, req.body.estado);

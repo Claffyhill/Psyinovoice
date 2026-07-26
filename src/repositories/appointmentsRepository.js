@@ -150,6 +150,62 @@ export async function updateStatus(id, status) {
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * Igual que findCompletedGroupedByMonth pero excluye por completo las citas
+ * que ya están vinculadas a una factura (en vez de solo marcarlas con un
+ * flag). Se usa para la pantalla de facturación pendiente, que no debe
+ * mostrar nada que ya esté facturado.
+ */
+export async function findPendingGroupedByMonth(year, month) {
+    const { rows } = await pool.query(
+        `SELECT
+            a.patient_id AS "patientId",
+            p.nombre AS "patientFirstName",
+            p.apellidos AS "patientLastName",
+            COUNT(*)::int AS "sessionCount",
+            SUM(a.amount_cents)::int AS "totalCents",
+            ARRAY_AGG(a.id ORDER BY a.appointment_date) AS "appointmentIds",
+            ARRAY_AGG(a.appointment_date ORDER BY a.appointment_date) AS "appointmentDates"
+         FROM appointments a
+         JOIN patients p ON p.id = a.patient_id
+         WHERE a.status = 'completed'
+           AND EXTRACT(YEAR FROM a.appointment_date) = $1
+           AND EXTRACT(MONTH FROM a.appointment_date) = $2
+           AND NOT EXISTS (
+               SELECT 1 FROM invoice_appointments ia WHERE ia.appointment_id = a.id
+           )
+         GROUP BY a.patient_id, p.nombre, p.apellidos
+         ORDER BY p.apellidos, p.nombre`,
+        [year, month]
+    );
+    return rows;
+}
+
+/**
+ * Citas 'completed' y no facturadas de UN paciente en un mes/año concreto.
+ * Se usa al generar la factura mensual: da los ids e importes exactos que
+ * hay que vincular, calculados en backend (nunca confiando en el frontend).
+ */
+export async function findPendingByPatientAndMonth(patientId, year, month, client = pool) {
+    const { rows } = await client.query(
+        `SELECT a.id, a.appointment_date, a.amount_cents
+         FROM appointments a
+         WHERE a.patient_id = $1
+           AND a.status = 'completed'
+           AND EXTRACT(YEAR FROM a.appointment_date) = $2
+           AND EXTRACT(MONTH FROM a.appointment_date) = $3
+           AND NOT EXISTS (
+               SELECT 1 FROM invoice_appointments ia WHERE ia.appointment_id = a.id
+           )
+         ORDER BY a.appointment_date`,
+        [patientId, year, month]
+    );
+    return rows;
+}
+
+/**
+>>>>>>> 3d2b9cc (v. calendario bdd)
  * Citas 'completed' de un mes, agrupadas por paciente, con el número de
  * sesiones, el total en céntimos, los ids de las citas y si ya están
  * facturadas (presentes en invoice_appointments).
