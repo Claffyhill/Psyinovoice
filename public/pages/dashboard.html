@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsyInvoice · Inicio</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar__brand">
+                <p class="sidebar__brand-title">PsyInvoice</p>
+            </div>
+            <nav class="sidebar__nav">
+                <a href="/pages/dashboard.html" class="sidebar__link sidebar__link--active">
+                    <span class="material-symbols-outlined">home</span>
+                    <span>Inicio</span>
+                </a>
+                <a href="/pages/pacientes.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Pacientes</span>
+                </a>
+                <a href="/pages/calendario.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span>Calendario</span>
+                </a>
+                <a href="/pages/nueva-factura.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span>Nueva factura</span>
+                </a>
+                <a href="/pages/facturas.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span>Facturas</span>
+                </a>
+                <a href="/pages/informes.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">assessment</span>
+                    <span>Informes</span>
+                </a>
+                <a href="/pages/configuracion.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="content content--sin-topbar">
+            <header class="home-header">
+                <div>
+                    <h1 id="home-saludo">Buenos días</h1>
+                    <p class="home-header__fecha" id="home-fecha"></p>
+                </div>
+                <a href="/pages/nueva-factura.html" class="btn btn--primary">
+                    <span class="material-symbols-outlined">add</span>
+                    Nueva factura
+                </a>
+            </header>
+
+            <div id="mensaje" class="mensaje" hidden></div>
+
+            <div class="home-search">
+                <span class="material-symbols-outlined">search</span>
+                <input
+                    type="text"
+                    id="home-buscador"
+                    placeholder="Buscar paciente por nombre o DNI..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <section class="home-section">
+                <div class="home-section__header">
+                    <h2>Pacientes recientes</h2>
+                </div>
+                <div class="table-wrapper">
+                    <table class="tabla">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Última factura</th>
+                                <th>Importe habitual</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="home-tabla-recientes">
+                            <tr>
+                                <td colspan="5" class="tabla__vacio">Cargando...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="home-section">
+                <div class="home-section__header">
+                    <h2>Resumen del trimestre</h2>
+                </div>
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <span class="stat-card__label">Facturas emitidas</span>
+                        <span class="stat-card__value" id="home-stat-facturas">—</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card__label">Importe total</span>
+                        <span class="stat-card__value" id="home-stat-total">—</span>
+                    </div>
+                </div>
+                <a href="#" id="home-btn-informe-trimestre" class="btn btn--secundario">
+                    <span class="material-symbols-outlined">download</span>
+                    Descargar PDF trimestral
+                </a>
+            </section>
+
+            <section class="home-section">
+                <div class="shortcuts-grid">
+                    <a href="/pages/pacientes.html" class="shortcut-btn">
+                        <span class="material-symbols-outlined">person_add</span>
+                        Nuevo paciente
+                    </a>
+                    <a href="/pages/nueva-factura.html" class="shortcut-btn">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                        Nueva factura
+                    </a>
+                    <a href="/pages/facturas.html" class="shortcut-btn">
+                        <span class="material-symbols-outlined">description</span>
+                        Facturas
+                    </a>
+                    <a href="/pages/configuracion.html" class="shortcut-btn">
+                        <span class="material-symbols-outlined">settings</span>
+                        Configuración
+                    </a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>

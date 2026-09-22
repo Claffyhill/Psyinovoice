@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsyInvoice · Calendario</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar__brand">
+                <p class="sidebar__brand-title">PsyInvoice</p>
+            </div>
+            <nav class="sidebar__nav">
+                <a href="/pages/dashboard.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">home</span>
+                    <span>Inicio</span>
+                </a>
+                <a href="/pages/pacientes.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Pacientes</span>
+                </a>
+                <a href="/pages/calendario.html" class="sidebar__link sidebar__link--active">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span>Calendario</span>
+                </a>
+                <a href="/pages/nueva-factura.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span>Nueva factura</span>
+                </a>
+                <a href="/pages/facturas.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span>Facturas</span>
+                </a>
+                <a href="/pages/informes.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">assessment</span>
+                    <span>Informes</span>
+                </a>
+                <a href="/pages/configuracion.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+            <div class="sidebar__footer">
+                <div class="avatar" id="sidebar-avatar-iniciales">--</div>
+                <div>
+                    <p class="sidebar__footer-name" id="sidebar-nombre-profesional">Cargando...</p>
+                    <p class="sidebar__footer-role">Psicóloga</p>
+                </div>
+            </div>
+        </aside>
+
+        <header class="topbar">
+            <div></div>
+            <div class="topbar__actions">
+                <button class="icon-btn" type="button" title="Ayuda">
+                    <span class="material-symbols-outlined">help_outline</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="content content--ancho">
+            <div class="calendario-cabecera">
+                <div class="fecha-nav">
+                    <button type="button" id="btn-dia-anterior" class="btn btn--secundario btn--pequeno" aria-label="Día anterior">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <button type="button" id="btn-hoy" class="btn btn--secundario btn--pequeno">Hoy</button>
+                    <button type="button" id="btn-dia-siguiente" class="btn btn--secundario btn--pequeno" aria-label="Día siguiente">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                    <span class="fecha-nav__fecha" id="fecha-seleccionada"></span>
+                </div>
+                <button type="button" id="btn-nueva-cita" class="btn btn--primary">
+                    <span class="material-symbols-outlined">add</span>
+                    Nueva cita
+                </button>
+            </div>
+
+            <div id="mensaje" class="mensaje" hidden></div>
+
+            <div class="vista-tabs">
+                <button type="button" id="tab-diaria" class="activa">Vista diaria</button>
+                <button type="button" id="tab-semanal">Vista semanal</button>
+            </div>
+
+            <section id="vista-diaria">
+                <div class="huecos-lista" id="huecos-lista">
+                    <p class="tabla__vacio">Cargando disponibilidad...</p>
+                </div>
+            </section>
+
+            <section id="vista-semanal" hidden>
+                <div class="semana-tabla-wrapper">
+                    <table class="semana-tabla">
+                        <thead>
+                            <tr id="semana-cabecera"></tr>
+                        </thead>
+                        <tbody id="semana-cuerpo">
+                            <tr><td>Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal para crear / editar cita -->
+    <div id="modal-cita" class="modal" hidden>
+        <div class="modal__contenido">
+            <h2 id="modal-cita-titulo">Nueva cita</h2>
+
+            <form id="form-cita">
+                <input type="hidden" id="cita-id">
+
+                <div class="campo">
+                    <label for="cita-paciente">Paciente *</label>
+                    <select id="cita-paciente" class="input" required>
+                        <option value="">Selecciona un paciente...</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="cita-fecha">Fecha *</label>
+                    <input type="date" id="cita-fecha" class="input" required>
+                </div>
+
+                <div class="campo">
+                    <label for="cita-hora">Hora *</label>
+                    <input type="time" id="cita-hora" class="input" step="900" required>
+                    <p class="campo--info">
+                        <span class="material-symbols-outlined" style="font-size:16px;">info</span>
+                        Puedes escribir una hora distinta a las habituales (por ejemplo 12:00). Se comprobará que esté dentro del horario y libre.
+                    </p>
+                </div>
+
+                <div class="campo">
+                    <label for="cita-importe">Importe (€) *</label>
+                    <input type="number" id="cita-importe" class="input" min="0.01" step="0.01" required>
+                </div>
+
+                <div class="campo">
+                    <label for="cita-estado">Estado</label>
+                    <select id="cita-estado" class="input">
+                        <option value="scheduled">Programada</option>
+                        <option value="completed">Realizada</option>
+                        <option value="cancelled">Cancelada</option>
+                        <option value="no_show">No asistió</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="cita-notas">Notas administrativas (opcional)</label>
+                    <textarea id="cita-notas" class="input" rows="2"></textarea>
+                </div>
+
+                <div class="modal__acciones">
+                    <button type="button" id="btn-cancelar-cita" class="btn btn--secundario">Cancelar</button>
+                    <button type="submit" class="btn btn--primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/calendario.js"></script>
+</body>
+</html>

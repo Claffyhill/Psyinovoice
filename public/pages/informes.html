@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsyInvoice · Informes</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar__brand">
+                <p class="sidebar__brand-title">PsyInvoice</p>
+                <p class="sidebar__brand-tagline">Clinical Clarity</p>
+            </div>
+            <nav class="sidebar__nav">
+                <a href="/pages/dashboard.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">home</span>
+                    <span>Inicio</span>
+                </a>
+                <a href="/pages/pacientes.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Pacientes</span>
+                </a>
+                <a href="/pages/calendario.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span>Calendario</span>
+                </a>
+                <a href="/pages/nueva-factura.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span>Nueva factura</span>
+                </a>
+                <a href="/pages/facturas.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span>Facturas</span>
+                </a>
+                <a href="/pages/informes.html" class="sidebar__link sidebar__link--active">
+                    <span class="material-symbols-outlined">assessment</span>
+                    <span>Informes</span>
+                </a>
+                <a href="/pages/configuracion.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+            <div class="sidebar__footer">
+                <div class="avatar" id="sidebar-avatar-iniciales">--</div>
+                <div>
+                    <p class="sidebar__footer-name" id="sidebar-nombre-profesional">Cargando...</p>
+                    <p class="sidebar__footer-role">Psicóloga</p>
+                </div>
+            </div>
+        </aside>
+
+        <header class="topbar">
+            <div></div>
+            <div class="topbar__actions">
+                <button class="icon-btn" type="button" title="Ayuda">
+                    <span class="material-symbols-outlined">help_outline</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="content">
+            <header class="content__header">
+                <div>
+                    <h1>Informes</h1>
+                    <p class="content__subtitle">Descarga el resumen trimestral de facturación en PDF, listo para tu gestoría o para Hacienda.</p>
+                </div>
+            </header>
+
+            <div id="mensaje" class="mensaje" hidden></div>
+
+            <section class="card" style="padding:28px; max-width:520px;">
+                <h3 style="display:flex; align-items:center; gap:8px; margin-top:0;">
+                    <span class="material-symbols-outlined" style="color:var(--color-primary);">summarize</span>
+                    Resumen trimestral
+                </h3>
+                <p style="color:var(--color-on-surface-variant); margin-top:0;">
+                    Incluye el resumen económico del periodo y todas las facturas emitidas, pagadas o pendientes.
+                </p>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                    <div class="campo">
+                        <label for="informe-anio">Año</label>
+                        <select id="informe-anio" class="input">
+                            <!-- Se rellena dinámicamente desde JS -->
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label for="informe-trimestre">Trimestre</label>
+                        <select id="informe-trimestre" class="input">
+                            <option value="">Selecciona...</option>
+                            <option value="1">1er trimestre</option>
+                            <option value="2">2º trimestre</option>
+                            <option value="3">3er trimestre</option>
+                            <option value="4">4º trimestre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="button" id="btn-descargar-informe" class="btn btn--primary btn--grande">
+                    <span class="material-symbols-outlined">download</span>
+                    Descargar informe trimestral en PDF
+                </button>
+            </section>
+
+            <section class="card" style="padding:28px; max-width:720px; margin-top:24px;">
+                <h3 style="display:flex; align-items:center; gap:8px; margin-top:0;">
+                    <span class="material-symbols-outlined" style="color:var(--color-primary);">event_available</span>
+                    Resumen mensual de sesiones
+                </h3>
+                <p style="color:var(--color-on-surface-variant); margin-top:0;">
+                    Sesiones realizadas por paciente en un mes, como vista previa para la futura facturación mensual agrupada. Todavía no genera facturas.
+                </p>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:400px;">
+                    <div class="campo">
+                        <label for="resumen-anio">Año</label>
+                        <select id="resumen-anio" class="input">
+                            <!-- Se rellena dinámicamente desde JS -->
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label for="resumen-mes">Mes</label>
+                        <select id="resumen-mes" class="input">
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="button" id="btn-consultar-resumen" class="btn btn--secundario">
+                    <span class="material-symbols-outlined">search</span>
+                    Consultar
+                </button>
+
+                <div class="table-wrapper" style="margin-top:20px;">
+                    <table class="tabla">
+                        <thead>
+                            <tr>
+                                <th>Paciente</th>
+                                <th>Sesiones realizadas</th>
+                                <th>Total</th>
+                                <th>Estado de facturación</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resumen-mensual-body">
+                            <tr>
+                                <td colspan="4" class="tabla__vacio">Selecciona un año y un mes, y pulsa "Consultar".</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/informes.js"></script>
+</body>
+</html>

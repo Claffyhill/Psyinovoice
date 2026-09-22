@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsyInvoice · Facturas</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar__brand">
+                <p class="sidebar__brand-title">PsyInvoice</p>
+                <p class="sidebar__brand-tagline">Clinical Clarity</p>
+            </div>
+            <nav class="sidebar__nav">
+                <a href="/pages/dashboard.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">home</span>
+                    <span>Inicio</span>
+                </a>
+                <a href="/pages/pacientes.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Pacientes</span>
+                </a>
+                <a href="/pages/calendario.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span>Calendario</span>
+                </a>
+                <a href="/pages/nueva-factura.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span>Nueva factura</span>
+                </a>
+                <a href="/pages/facturas.html" class="sidebar__link sidebar__link--active">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span>Facturas</span>
+                </a>
+                <a href="/pages/informes.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">assessment</span>
+                    <span>Informes</span>
+                </a>
+                <a href="/pages/configuracion.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+            <div class="sidebar__footer">
+                <div class="avatar" id="sidebar-avatar-iniciales">--</div>
+                <div>
+                    <p class="sidebar__footer-name" id="sidebar-nombre-profesional">Cargando...</p>
+                    <p class="sidebar__footer-role">Psicóloga</p>
+                </div>
+            </div>
+        </aside>
+
+        <header class="topbar">
+            <div class="topbar__search">
+                <span class="material-symbols-outlined">search</span>
+                <input
+                    type="text"
+                    id="filtro-buscar"
+                    class="input"
+                    placeholder="Buscar facturas por paciente o número..."
+                >
+            </div>
+            <div class="topbar__actions">
+                <button class="icon-btn" type="button" title="Notificaciones">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+                <button class="icon-btn" type="button" title="Ayuda">
+                    <span class="material-symbols-outlined">help_outline</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="content content--ancho">
+            <header class="content__header">
+                <h1>Facturas</h1>
+                <a href="/pages/nueva-factura.html" class="btn btn--primary">
+                    <span class="material-symbols-outlined">add</span>
+                    Nueva factura
+                </a>
+            </header>
+
+            <div class="filtros">
+                <div class="campo">
+                    <label for="filtro-trimestre">Trimestre</label>
+                    <select id="filtro-trimestre" class="input">
+                        <option value="">Todos los trimestres</option>
+                        <option value="1">1er trimestre</option>
+                        <option value="2">2º trimestre</option>
+                        <option value="3">3er trimestre</option>
+                        <option value="4">4º trimestre</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="filtro-anio">Año</label>
+                    <select id="filtro-anio" class="input">
+                        <!-- Se rellena dinámicamente desde JS -->
+                    </select>
+                </div>
+
+                <button type="button" id="btn-descargar-trimestre" class="btn btn--secundario">
+                    <span class="material-symbols-outlined">download</span>
+                    Descargar trimestre en PDF
+                </button>
+            </div>
+
+            <div id="mensaje" class="mensaje" hidden></div>
+
+            <div class="table-wrapper">
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Fecha</th>
+                            <th>Paciente</th>
+                            <th>Concepto</th>
+                            <th>Importe</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-facturas-body">
+                        <tr>
+                            <td colspan="7" class="tabla__vacio">Cargando facturas...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/facturas.js"></script>
+</body>
+</html>
