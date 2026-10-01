@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsyInvoice · Configuración</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar__brand">
+                <p class="sidebar__brand-title">PsyInvoice</p>
+                <p class="sidebar__brand-tagline">Clinical Clarity</p>
+            </div>
+            <nav class="sidebar__nav">
+                <a href="/pages/dashboard.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">home</span>
+                    <span>Inicio</span>
+                </a>
+                <a href="/pages/pacientes.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Pacientes</span>
+                </a>
+                <a href="/pages/calendario.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span>Calendario</span>
+                </a>
+                <a href="/pages/nueva-factura.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span>Nueva factura</span>
+                </a>
+                <a href="/pages/facturas.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span>Facturas</span>
+                </a>
+                <a href="/pages/informes.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">assessment</span>
+                    <span>Informes</span>
+                </a>
+                <a href="/pages/configuracion.html" class="sidebar__link sidebar__link--active">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+            <div class="sidebar__footer">
+                <div class="avatar" id="sidebar-avatar-iniciales">--</div>
+                <div>
+                    <p class="sidebar__footer-name" id="sidebar-nombre-profesional">Cargando...</p>
+                    <p class="sidebar__footer-role">Psicóloga</p>
+                </div>
+            </div>
+        </aside>
+
+        <header class="topbar">
+            <div></div>
+            <div class="topbar__actions">
+                <button class="icon-btn" type="button" title="Ayuda">
+                    <span class="material-symbols-outlined">help_outline</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="content">
+            <header class="content__header">
+                <div>
+                    <h1>Configuración</h1>
+                    <p class="content__subtitle">Gestiona tu identidad profesional y tus preferencias de facturación.</p>
+                </div>
+            </header>
+
+            <div id="mensaje" class="mensaje" hidden></div>
+
+            <form id="form-configuracion">
+                <section class="card" style="padding:28px; margin-bottom:24px;">
+                    <h3 style="display:flex; align-items:center; gap:8px; margin-top:0;">
+                        <span class="material-symbols-outlined" style="color:var(--color-primary);">badge</span>
+                        Datos profesionales
+                    </h3>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                        <div class="campo">
+                            <label for="cfg-nombre">Nombre *</label>
+                            <input type="text" id="cfg-nombre" class="input" required>
+                        </div>
+                        <div class="campo">
+                            <label for="cfg-apellidos">Apellidos *</label>
+                            <input type="text" id="cfg-apellidos" class="input" required>
+                        </div>
+                    </div>
+
+                    <div class="campo">
+                        <label for="cfg-nif">NIF</label>
+                        <input type="text" id="cfg-nif" class="input">
+                    </div>
+
+                    <div class="campo">
+                        <label for="cfg-direccion">Dirección de la consulta</label>
+                        <input type="text" id="cfg-direccion" class="input">
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                        <div class="campo">
+                            <label for="cfg-telefono">Teléfono de contacto</label>
+                            <input type="tel" id="cfg-telefono" class="input">
+                        </div>
+                        <div class="campo">
+                            <label for="cfg-email">Email profesional</label>
+                            <input type="email" id="cfg-email" class="input">
+                        </div>
+                    </div>
+
+                    <div class="campo" style="max-width:280px;">
+                        <label for="cfg-numero-colegiada">Nº de colegiada</label>
+                        <input type="text" id="cfg-numero-colegiada" class="input">
+                    </div>
+                </section>
+
+                <section class="card" style="padding:28px; margin-bottom:24px;">
+                    <h3 style="display:flex; align-items:center; gap:8px; margin-top:0;">
+                        <span class="material-symbols-outlined" style="color:var(--color-primary);">account_balance_wallet</span>
+                        Preferencias de facturación
+                    </h3>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                        <div class="campo">
+                            <label for="cfg-precio-defecto">Precio por defecto (€) *</label>
+                            <input type="number" id="cfg-precio-defecto" class="input" min="0.01" step="0.01" required>
+                        </div>
+                        <div class="campo">
+                            <label for="cfg-prefijo-factura">Prefijo de factura *</label>
+                            <input type="text" id="cfg-prefijo-factura" class="input" required>
+                        </div>
+                    </div>
+
+                    <div class="campo">
+                        <label for="cfg-concepto-defecto">Concepto habitual *</label>
+                        <textarea id="cfg-concepto-defecto" class="input" rows="3" required></textarea>
+                    </div>
+
+                    <div class="campo" style="max-width:280px;">
+                        <label for="cfg-siguiente-numero">Siguiente número de factura *</label>
+                        <input type="number" id="cfg-siguiente-numero" class="input" min="1" step="1" required>
+                    </div>
+                    <p class="campo--info">
+                        <span class="material-symbols-outlined" style="font-size:18px;">warning</span>
+                        Cámbialo solo si es necesario: debe coincidir con la siguiente factura que emitas para no duplicar números.
+                    </p>
+                </section>
+
+                <div class="modal__acciones" style="justify-content:flex-start;">
+                    <button type="submit" id="btn-guardar-configuracion" class="btn btn--primary">
+                        <span class="material-symbols-outlined">save</span>
+                        Guardar cambios
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/configuracion.js"></script>
+</body>
+</html>

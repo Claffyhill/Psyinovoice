@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsyInvoice · Nueva factura</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar__brand">
+                <p class="sidebar__brand-title">PsyInvoice</p>
+                <p class="sidebar__brand-tagline">Clinical Clarity</p>
+            </div>
+            <nav class="sidebar__nav">
+                <a href="/pages/dashboard.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">home</span>
+                    <span>Inicio</span>
+                </a>
+                <a href="/pages/pacientes.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Pacientes</span>
+                </a>
+                <a href="/pages/calendario.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span>Calendario</span>
+                </a>
+                <a href="/pages/nueva-factura.html" class="sidebar__link sidebar__link--active">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span>Nueva factura</span>
+                </a>
+                <a href="/pages/facturas.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span>Facturas</span>
+                </a>
+                <a href="/pages/informes.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">assessment</span>
+                    <span>Informes</span>
+                </a>
+                <a href="/pages/configuracion.html" class="sidebar__link">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+            <div class="sidebar__footer">
+                <div class="avatar" id="sidebar-avatar-iniciales">--</div>
+                <div>
+                    <p class="sidebar__footer-name" id="sidebar-nombre-profesional">Cargando...</p>
+                    <p class="sidebar__footer-role">Psicóloga</p>
+                </div>
+            </div>
+        </aside>
+
+        <header class="topbar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <a href="/pages/facturas.html" class="icon-btn" title="Volver a facturas">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </a>
+                <h2 style="margin:0; font-size:20px; font-weight:600;">Nueva factura</h2>
+            </div>
+            <div class="topbar__actions">
+                <button class="icon-btn" type="button" title="Ayuda">
+                    <span class="material-symbols-outlined">help_outline</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="content" style="display:flex; flex-direction:column; align-items:center;">
+            <div id="mensaje" class="mensaje" style="max-width:560px; width:100%;" hidden></div>
+
+            <form id="form-factura" class="formulario-factura">
+                <div class="formulario-factura__seccion">
+                    <div class="campo">
+                        <label for="factura-paciente">Paciente *</label>
+                        <select id="factura-paciente" class="input" required>
+                            <option value="">Selecciona un paciente...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="formulario-factura__seccion">
+                    <div class="campo">
+                        <label for="factura-fecha">Fecha *</label>
+                        <input type="date" id="factura-fecha" class="input" required>
+                    </div>
+                </div>
+
+                <div class="formulario-factura__seccion">
+                    <div class="campo">
+                        <label for="factura-concepto">Concepto *</label>
+                        <input type="text" id="factura-concepto" class="input" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="factura-observaciones">Observaciones (opcional)</label>
+                        <textarea id="factura-observaciones" class="input" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div class="formulario-factura__seccion formulario-factura__seccion--precio">
+                    <div>
+                        <label for="factura-importe" style="display:block; font-weight:600; font-size:13px; text-transform:uppercase; letter-spacing:0.03em; color:var(--color-on-surface-variant); margin-bottom:8px;">
+                            Precio de sesión *
+                        </label>
+                        <div class="precio-input-wrapper">
+                            <span class="simbolo-euro">€</span>
+                            <input type="number" id="factura-importe" min="0.01" step="0.01" required>
+                        </div>
+                        <p class="campo--info" style="margin-top:8px;">
+                            <span class="material-symbols-outlined" style="font-size:18px;">info</span>
+                            Exento de IVA
+                        </p>
+                    </div>
+                </div>
+            </form>
+
+            <div class="acciones-factura">
+                <button type="submit" form="form-factura" id="btn-generar-factura" class="btn btn--primary btn--grande">
+                    <span class="material-symbols-outlined">description</span>
+                    Generar factura
+                </button>
+            </div>
+
+            <p class="footer-nota">
+                <span class="material-symbols-outlined" style="font-size:18px;">verified_user</span>
+                Conforme a la normativa de facturación de servicios sanitarios.
+            </p>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="/js/nueva-factura.js"></script>
+</body>
+</html>
