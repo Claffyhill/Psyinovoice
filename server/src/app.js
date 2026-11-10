@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import path from 'node:path';
@@ -6,7 +7,7 @@ import dotenv from 'dotenv';
 
 import { apiRouter } from './routes/index.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
-import { connectDB } from './config/database.js';
+import { connectDB, closeDB } from './config/database.js';
 
 dotenv.config();
 
@@ -26,17 +27,42 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 
-async function start() {
-    // La conexión a MongoDB se abre una sola vez al arrancar; si falla,
-    // la app no debe empezar a aceptar peticiones.
+let server = null;
+
+export async function startServer() {
+    if (server) {
+        return server;
+    }
+
     await connectDB();
 
-    app.listen(PORT, () => {
-        console.log(`PsyInvoice escuchando en http://localhost:${PORT}`);
+    return new Promise((resolve, reject) => {
+        const httpServer = app.listen(PORT, '127.0.0.1');
+
+        httpServer.once('error', async (err) => {
+            await closeDB();
+            reject(err);
+        });
+
+        httpServer.once('listening', () => {
+            server = httpServer;
+            console.log(`PsyInvoice escuchando en http://127.0.0.1:${PORT}`);
+            resolve(server);
+        });
     });
 }
 
-start().catch((err) => {
-    console.error('Error arrancando PsyInvoice:', err);
-    process.exit(1);
-});
+export async function stopServer() {
+    if (server) {
+        await new Promise((resolve, reject) => {
+            server.close((err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        server = null;
+    }
+
+    await closeDB();
+}

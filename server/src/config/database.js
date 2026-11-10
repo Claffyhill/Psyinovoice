@@ -24,6 +24,21 @@ export async function connectDB() {
 }
 
 /**
+ * Comprueba si hay una conexión abierta, cierra el cliente de MongoDB y restablede db a null
+ * Permite que el proceso termine sin dejar conexiones abiertas
+ */
+
+export async function closeDB() {
+    if (!db) return;
+
+    await client.close();
+    db = null;
+    console.log('Conexión con MongoDB cerrada');
+}
+
+
+
+/**
  * Devuelve el handle de la base de datos ya conectada. Lanza si se llama
  * antes de connectDB() (fallo de arranque, no de petición individual).
  */
