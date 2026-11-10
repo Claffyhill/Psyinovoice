@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
+import { initializeDatabase } from './database/initMongo.js';
 
 import { apiRouter } from './routes/index.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
@@ -34,7 +35,16 @@ export async function startServer() {
         return server;
     }
 
-    await connectDB();
+    try {
+        const db = await connectDB();
+
+        // Inicializar MongoDB antes de aceptar peticiones.
+        await initializeDatabase(db);
+
+    } catch (err) {
+        await closeDB();
+        throw err;
+    }
 
     return new Promise((resolve, reject) => {
         const httpServer = app.listen(PORT, '127.0.0.1');

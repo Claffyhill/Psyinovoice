@@ -114,13 +114,15 @@ async function sembrarHorarioSemanal(db) {
     console.log('Horario semanal por defecto sembrado.');
 }
 
-// Inicialización reutilizable desde Electron.
-export async function initializeDatabase() {
-    const db = await connectDB();
+//* Inicialización reutilizable desde Electron.
+export async function initializeDatabase(db = null) {
+    // Si Electron ya ha conectado MongoDB, reutilizamos esa conexión.
+    // Si se ejecuta desde terminal, creamos la conexión aquí.
+    const database = db ?? await connectDB();
 
-    await crearIndices(db);
-    await sembrarSettings(db);
-    await sembrarHorarioSemanal(db);
+    await crearIndices(database);
+    await sembrarSettings(database);
+    await sembrarHorarioSemanal(database);
 
     console.log('Inicialización completada.');
 }
