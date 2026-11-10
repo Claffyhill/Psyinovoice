@@ -1,6 +1,17 @@
+
 {
+  "name": "psyinvoice",
+  "version": "1.0.0",
+  "description": "Aplicación de escritorio PsyInvoice",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
   "dependencies": {
     "mongod": "^2.0.0",
     "mongodb": "^7.6.0"
+  },
+  "devDependencies": {
+    "electron": "^45.2.3"
   }
 }
