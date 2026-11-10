@@ -3,50 +3,215 @@ const { app, BrowserWindow, dialog } = require('electron');
 const { spawn } = require('node:child_process');
 const path = require('node:path');
 const net = require('node:net');
+const fs = require('node:fs');
+const { MongoClient } = require('mongodb');
+
+// =========================================================
+// Procesos y ventanas
+// =========================================================
 
 let mongoProcess = null;
 let mainWindow = null;
 let stopServer = null;
 let isQuitting = false;
+let isNewDatabase = false;
 
-// Rutas temporales de desarrollo.
-// Más adelante las adaptaremos al instalador.
+// =========================================================
+// Rutas de la aplicación
+// =========================================================
+
 const PROJECT_PATH = path.join(__dirname, '..');
 
-const MONGO_PATH =
-    'D:\\PsyInvoice\\MongoDB\\mongodb-win32-x86_64-windows-9.0.4\\bin\\mongod.exe';
+const MONGO_PATH = app.isPackaged
+    ? path.join(process.resourcesPath, 'mongodb', 'bin', 'mongod.exe')
+    : path.join(PROJECT_PATH, 'resources', 'mongodb', 'bin', 'mongod.exe');
 
-const DATA_PATH = 'D:\\PsyInvoice\\MongoDB\\data';
-const LOG_PATH = 'D:\\PsyInvoice\\MongoDB\\log\\mongod.log';
+// Configuración persistente de Electron.
+const CONFIG_DIR = app.getPath('userData');
+const CONFIG_PATH = path.join(CONFIG_DIR, 'config.json');
 
+// Rutas configuradas durante el arranque.
+let DATA_PATH = null;
+let LOG_PATH = null;
+
+// Configuración de conexión.
 const MONGO_PORT = 27017;
 const SERVER_URL = 'http://127.0.0.1:3000';
 
-// Comprobar que la base de datos existe antes de arrancar MongoDB.
-const fs = require('node:fs');
+// =========================================================
+// Carga de la ubicación de los datos
+// =========================================================
 
-function validateDatabasePath() {
-    if (!fs.existsSync(DATA_PATH)) {
-        throw new Error(
-            `No se encuentra la carpeta de datos de PsyInvoice:\n${DATA_PATH}\n\n` +
-            'Comprueba que el disco está conectado y que la ruta es correcta. ' +
-            'No se creará una base de datos nueva automáticamente.'
+async function loadDataPath() {
+    let config = null;
+
+    // Comprueba si ya existe una configuración.
+    if (fs.existsSync(CONFIG_PATH)) {
+        try {
+            config = JSON.parse(
+                fs.readFileSync(CONFIG_PATH, 'utf8')
+            );
+        } catch {
+            throw new Error(
+                'El archivo de configuración de PsyInvoice está dañado.'
+            );
+        }
+    }
+
+    // Si no hay ubicación guardada, solicita una.
+    if (!config?.dataDirectory) {
+        const result = await dialog.showOpenDialog({
+            title: 'Seleccionar ubicación de los datos de PsyInvoice',
+            message: 'Elige dónde quieres guardar los datos de PsyInvoice.',
+            properties: ['openDirectory', 'createDirectory']
+        });
+
+        if (result.canceled || !result.filePaths.length) {
+            throw new Error(
+                'Debes seleccionar una ubicación para guardar los datos.'
+            );
+        }
+
+        config = {
+            dataDirectory: result.filePaths[0]
+        };
+
+        fs.mkdirSync(CONFIG_DIR, { recursive: true });
+
+        fs.writeFileSync(
+            CONFIG_PATH,
+            JSON.stringify(config, null, 4),
+            'utf8'
         );
     }
 
-    if (!fs.existsSync(path.join(DATA_PATH, 'WiredTiger'))) {
+    const selectedDirectory = config.dataDirectory;
+
+    if (
+        typeof selectedDirectory !== 'string' ||
+        !path.isAbsolute(selectedDirectory) ||
+        !fs.existsSync(selectedDirectory)
+    ) {
         throw new Error(
-            'La carpeta de datos no parece contener una base de datos MongoDB válida. ' +
-            'Se ha cancelado el arranque para proteger los datos existentes.'
+            'La ubicación guardada para los datos de PsyInvoice no está disponible.'
+        );
+    }
+
+    // Compatibilidad con la antigua estructura de datos.
+    // Si existe una base de datos antigua, se conserva su ubicación.
+    const oldDataPath = path.join(selectedDirectory, 'data');
+
+    if (
+        fs.existsSync(path.join(oldDataPath, 'WiredTiger'))
+    ) {
+        DATA_PATH = oldDataPath;
+        LOG_PATH = path.join(
+            selectedDirectory,
+            'log',
+            'mongod.log'
+        );
+    } else {
+        // Nueva estructura de carpetas.
+        const psyInvoiceDirectory = path.join(
+            selectedDirectory,
+            'PsyInvoiceData'
+        );
+
+        DATA_PATH = path.join(psyInvoiceDirectory, 'data');
+        LOG_PATH = path.join(
+            psyInvoiceDirectory,
+            'logs',
+            'mongod.log'
+        );
+
+        fs.mkdirSync(
+            path.join(psyInvoiceDirectory, 'backups'),
+            { recursive: true }
+        );
+    }
+
+    // Crea las carpetas necesarias.
+    fs.mkdirSync(DATA_PATH, { recursive: true });
+    fs.mkdirSync(path.dirname(LOG_PATH), { recursive: true });
+
+    // Una carpeta vacía corresponde a una instalación nueva.
+    const files = fs.readdirSync(DATA_PATH);
+
+    if (files.length === 0) {
+        isNewDatabase = true;
+    } else if (fs.existsSync(path.join(DATA_PATH, 'WiredTiger'))) {
+        isNewDatabase = false;
+    } else {
+        throw new Error(
+            'La carpeta de datos contiene archivos, pero no parece ' +
+            'una base de datos MongoDB válida. Se ha cancelado el arranque ' +
+            'para proteger los datos existentes.'
+        );
+    }
+}
+
+// =========================================================
+// Validación de las rutas
+// =========================================================
+
+function validateDatabasePath() {
+    if (!fs.existsSync(MONGO_PATH)) {
+        throw new Error(
+            `No se encuentra el ejecutable de MongoDB:\n${MONGO_PATH}`
+        );
+    }
+
+    if (!fs.existsSync(DATA_PATH)) {
+        throw new Error(
+            `No se encuentra la carpeta de datos:\n${DATA_PATH}`
         );
     }
 
     if (!fs.existsSync(path.dirname(LOG_PATH))) {
-        throw new Error('No se encuentra la carpeta de registros de MongoDB.');
+        throw new Error(
+            'No se encuentra la carpeta de registros de MongoDB.'
+        );
     }
 }
 
-// Comprueba que MongoDB responde en el puerto.
+// =========================================================
+// Comprobación del puerto
+// =========================================================
+
+function checkMongoPortAvailable() {
+    return new Promise((resolve, reject) => {
+        const socket = net.createConnection({
+            host: '127.0.0.1',
+            port: MONGO_PORT
+        });
+
+        socket.once('connect', () => {
+            socket.destroy();
+
+            reject(
+                new Error(
+                    `El puerto ${MONGO_PORT} ya está en uso. ` +
+                    'Puede que otra instancia de MongoDB esté ejecutándose.'
+                )
+            );
+        });
+
+        socket.once('error', (error) => {
+            socket.destroy();
+
+            if (error.code === 'ECONNREFUSED') {
+                resolve();
+            } else {
+                reject(error);
+            }
+        });
+    });
+}
+
+// =========================================================
+// Espera a que MongoDB responda
+// =========================================================
+
 function waitForMongo(timeout = 30000) {
     return new Promise((resolve, reject) => {
         const start = Date.now();
@@ -77,7 +242,9 @@ function waitForMongo(timeout = 30000) {
 
         function retry() {
             if (Date.now() - start >= timeout) {
-                reject(new Error('MongoDB no ha arrancado a tiempo.'));
+                reject(
+                    new Error('MongoDB no ha arrancado a tiempo.')
+                );
                 return;
             }
 
@@ -88,11 +255,13 @@ function waitForMongo(timeout = 30000) {
     });
 }
 
-// Arranca MongoDB.
+// =========================================================
+// Arranque de MongoDB
+// =========================================================
 
 function startMongo() {
     return new Promise((resolve, reject) => {
-        const process = spawn(MONGO_PATH, [
+        const child = spawn(MONGO_PATH, [
             '--dbpath', DATA_PATH,
             '--port', String(MONGO_PORT),
             '--bind_ip', '127.0.0.1',
@@ -103,73 +272,153 @@ function startMongo() {
             stdio: 'ignore'
         });
 
-        mongoProcess = process;
+        mongoProcess = child;
 
-        process.once('error', (error) => {
+        child.once('error', (error) => {
             mongoProcess = null;
             reject(error);
         });
 
-        process.once('spawn', () => {
+        child.once('spawn', () => {
             resolve();
         });
 
-        process.once('exit', (code) => {
-            if (mongoProcess === process) {
+        child.once('exit', (code) => {
+            if (mongoProcess === child) {
                 mongoProcess = null;
             }
 
             if (!isQuitting) {
-                console.error('MongoDB terminó inesperadamente. Código:', code);
+                console.error(
+                    'MongoDB terminó inesperadamente. Código:',
+                    code
+                );
             }
         });
     });
 }
 
+// =========================================================
+// Inicialización del replica set
+// =========================================================
 
-// Comprueba que el replica set está preparado.
-
-async function waitForMongoPrimary(timeout = 30000) {
-    const { MongoClient } = require('mongodb');
-
+async function initializeReplicaSetIfNeeded() {
     const client = new MongoClient(
         `mongodb://127.0.0.1:${MONGO_PORT}/?directConnection=true`,
-        { serverSelectionTimeoutMS: 2000 }
+        { serverSelectionTimeoutMS: 5000 }
     );
 
-    const start = Date.now();
-
     try {
-        while (Date.now() - start < timeout) {
-            try {
-                await client.connect();
+        await client.connect();
 
-                const status = await client.db('admin').command({
-                    replSetGetStatus: 1
-                });
+        try {
+            await client.db('admin').command({
+                replSetGetStatus: 1
+            });
 
-                const primary = status.members?.some(
-                    member => member.stateStr === 'PRIMARY'
-                );
+            // El replica set ya está inicializado.
+            return;
 
-                if (primary) return;
-            } catch {
-                // MongoDB o el replica set todavía se están iniciando.
+        } catch (error) {
+            // El código 94 indica que todavía no está inicializado.
+            if (
+                error.code !== 94 &&
+                error.codeName !== 'NotYetInitialized'
+            ) {
+                throw error;
             }
-
-            await client.close().catch(() => {});
-
-            await new Promise(resolve => setTimeout(resolve, 500));
         }
 
-        throw new Error('MongoDB no ha alcanzado el estado PRIMARY.');
+        console.log('Inicializando replica set...');
+
+        await client.db('admin').command({
+            replSetInitiate: {
+                _id: 'rs0',
+                members: [
+                    {
+                        _id: 0,
+                        host: `127.0.0.1:${MONGO_PORT}`
+                    }
+                ]
+            }
+        });
+
+        console.log('Replica set inicializado.');
+
     } finally {
-        await client.close();
+        await client.close().catch(() => { });
     }
 }
 
+// =========================================================
+// Espera al estado PRIMARY
+// =========================================================
 
-// Abre la ventana principal.
+async function waitForMongoPrimary(timeout = 30000) {
+    const start = Date.now();
+
+    while (Date.now() - start < timeout) {
+        const client = new MongoClient(
+            `mongodb://127.0.0.1:${MONGO_PORT}/?directConnection=true`,
+            { serverSelectionTimeoutMS: 2000 }
+        );
+
+        try {
+            await client.connect();
+
+            const status = await client.db('admin').command({
+                replSetGetStatus: 1
+            });
+
+            const primary = status.members?.some(
+                member => member.stateStr === 'PRIMARY'
+            );
+
+            if (primary) {
+                return;
+            }
+
+        } catch {
+            // MongoDB o el replica set todavía se están iniciando.
+        } finally {
+            await client.close().catch(() => { });
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    throw new Error(
+        'MongoDB no ha alcanzado el estado PRIMARY.'
+    );
+}
+
+// =========================================================
+// Inicialización de la base de datos
+// =========================================================
+
+async function initializeDatabaseIfNeeded() {
+    if (!isNewDatabase) {
+        return;
+    }
+
+    console.log('Inicializando la base de datos de PsyInvoice...');
+
+    // Importa y ejecuta explicitamente la inicialización
+    const { initializeDatabase } = await import(
+        '../server/src/database/initMongo.js'
+    );
+
+    await initializeDatabase();
+
+    console.log('Base de datos inicializada correctamente.');
+
+    isNewDatabase = false;
+}
+
+// =========================================================
+// Ventana principal
+// =========================================================
+
 async function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1400,
@@ -194,21 +443,38 @@ async function createWindow() {
     });
 }
 
-// Arranque de PsyInvoice.
+// =========================================================
+// Arranque de PsyInvoice
+// =========================================================
+
 app.whenReady().then(async () => {
-    
     try {
+        await loadDataPath();
+
         validateDatabasePath();
+
+        await checkMongoPortAvailable();
+
         await startMongo();
+
         await waitForMongo();
+
+        await initializeReplicaSetIfNeeded();
+
         await waitForMongoPrimary();
 
+        await initializeDatabaseIfNeeded();
+
+        // Arranca Express.
         const backend = await import('../server/src/app.js');
 
         await backend.startServer();
+
         stopServer = backend.stopServer;
 
+        // Abre la interfaz.
         await createWindow();
+
     } catch (error) {
         console.error('Error al iniciar PsyInvoice:', error);
 
@@ -223,15 +489,24 @@ app.whenReady().then(async () => {
     }
 });
 
+// =========================================================
+// Cierre de ventanas
+// =========================================================
+
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
 });
 
-// Cierre ordenado.
+// =========================================================
+// Cierre ordenado de la aplicación
+// =========================================================
+
 app.on('before-quit', (event) => {
-    if (isQuitting) return;
+    if (isQuitting) {
+        return;
+    }
 
     event.preventDefault();
     isQuitting = true;
@@ -239,8 +514,12 @@ app.on('before-quit', (event) => {
     shutdown();
 });
 
+// =========================================================
+// Apagado de Express y MongoDB
+// =========================================================
 
 async function shutdown() {
+    // Primero cerramos Express.
     try {
         if (stopServer) {
             await stopServer();
@@ -250,10 +529,9 @@ async function shutdown() {
         console.error('Error al cerrar Express:', error);
     }
 
+    // Después cerramos MongoDB.
     try {
         if (mongoProcess) {
-            const { MongoClient } = require('mongodb');
-
             const client = new MongoClient(
                 `mongodb://127.0.0.1:${MONGO_PORT}/?directConnection=true`,
                 { serverSelectionTimeoutMS: 3000 }
@@ -265,10 +543,14 @@ async function shutdown() {
                 await client.db('admin').command({
                     shutdown: 1
                 });
+
             } catch (error) {
-                console.log('MongoDB está cerrándose:', error.message);
+                console.log(
+                    'MongoDB está cerrándose:',
+                    error.message
+                );
             } finally {
-                await client.close().catch(() => {});
+                await client.close().catch(() => { });
             }
 
             const processToStop = mongoProcess;
@@ -279,6 +561,7 @@ async function shutdown() {
                         if (mongoProcess === processToStop) {
                             processToStop.kill();
                         }
+
                         resolve();
                     }, 10000);
 
@@ -298,9 +581,15 @@ async function shutdown() {
     }
 }
 
-// Evita crear otra ventana innecesariamente.
+// =========================================================
+// Reactivación de la aplicación
+// =========================================================
+
 app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0 && !isQuitting) {
+    if (
+        BrowserWindow.getAllWindows().length === 0 &&
+        !isQuitting
+    ) {
         createWindow().catch(console.error);
     }
 });

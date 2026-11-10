@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/?directConnection=true';
 const dbName = process.env.MONGODB_DB_NAME || 'psyinvoice';
 
 export const client = new MongoClient(uri);

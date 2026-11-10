@@ -5,13 +5,57 @@
   "description": "Aplicación de escritorio PsyInvoice",
   "main": "electron/main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder --win nsis --x64"
   },
   "dependencies": {
-    "mongod": "^2.0.0",
-    "mongodb": "^7.6.0"
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.3",
+    "mongodb": "^7.7.0",
+    "pdfkit": "^0.19.1"
   },
   "devDependencies": {
-    "electron": "^45.2.3"
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.psyinvoice.app",
+    "productName": "PsyInvoice",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "public/**/*",
+      "server/**/*",
+      "package.json",
+      "!server/node_modules/**",
+      "!server/.env",
+      "!server/.env.*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/mongodb",
+        "to": "mongodb"
+      },
+      {
+        "from": "resources/prerequisites",
+        "to": "prerequisites"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "PsyInvoice-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PsyInvoice",
+      "deleteAppDataOnUninstall": false
+    }
   }
 }
