@@ -22,6 +22,7 @@
   "build": {
     "appId": "com.psyinvoice.app",
     "productName": "PsyInvoice",
+    "npmRebuild": false,
     "directories": {
       "output": "dist"
     },
@@ -46,7 +47,8 @@
     ],
     "win": {
       "target": "nsis",
-      "artifactName": "PsyInvoice-Setup-${version}.${ext}"
+      "artifactName": "PsyInvoice-Setup-${version}.${ext}",
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "oneClick": false,
