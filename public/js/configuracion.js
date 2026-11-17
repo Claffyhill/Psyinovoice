@@ -14,6 +14,14 @@ const campoPrefijoFactura = document.getElementById('cfg-prefijo-factura');
 const campoConceptoDefecto = document.getElementById('cfg-concepto-defecto');
 const campoSiguienteNumero = document.getElementById('cfg-siguiente-numero');
 
+const camposEditables = form.querySelectorAll('input:not([type="hidden"]), textarea');
+
+camposEditables.forEach((campo) => {
+    campo.addEventListener('focus', () => {
+        campo.select();
+    });
+});
+
 function mostrarMensaje(texto, tipo) {
     mensajeEl.textContent = texto;
     mensajeEl.className = `mensaje mensaje--${tipo}`;

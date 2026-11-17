@@ -15,6 +15,7 @@
 // =========================================================
 
 import { connectDB, client } from '../config/database.js';
+import path from 'node:path';
 
 async function crearIndices(db) {
     // ---------- patients ----------
@@ -113,16 +114,36 @@ async function sembrarHorarioSemanal(db) {
     console.log('Horario semanal por defecto sembrado.');
 }
 
-async function main() {
-    const db = await connectDB();
-    await crearIndices(db);
-    await sembrarSettings(db);
-    await sembrarHorarioSemanal(db);
-    await client.close();
+//* Inicialización reutilizable desde Electron.
+export async function initializeDatabase(db = null) {
+    // Si Electron ya ha conectado MongoDB, reutilizamos esa conexión.
+    // Si se ejecuta desde terminal, creamos la conexión aquí.
+    const database = db ?? await connectDB();
+
+    await crearIndices(database);
+    await sembrarSettings(database);
+    await sembrarHorarioSemanal(database);
+
     console.log('Inicialización completada.');
 }
 
-main().catch((err) => {
-    console.error('Error inicializando la base de datos:', err);
-    process.exit(1);
-});
+// Ejecución independiente desde la terminal.
+async function main() {
+    try {
+        await initializeDatabase();
+    } finally {
+        await client.close();
+    }
+}
+
+if (
+    process.argv[1] &&
+    import.meta.url === new URL(
+        `file://${path.resolve(process.argv[1]).replace(/\\/g, '/')}`
+    ).href
+) {
+    main().catch((err) => {
+        console.error('Error inicializando la base de datos:', err);
+        process.exitCode = 1;
+    });
+}

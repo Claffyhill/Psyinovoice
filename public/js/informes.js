@@ -29,7 +29,7 @@ function poblarSelectorAnios() {
     selectResumenMes.value = String(new Date().getMonth() + 1);
 }
 
-function descargarInforme() {
+async function descargarInforme() {
     ocultarMensaje();
 
     const year = selectAnio.value;
@@ -40,7 +40,11 @@ function descargarInforme() {
         return;
     }
 
-    window.location.href = `/api/invoices/quarterly/pdf?year=${encodeURIComponent(year)}&quarter=${encodeURIComponent(quarter)}`;
+    try {
+        await api.descargarPdfTrimestral(year, quarter);
+    } catch (err) {
+        mostrarMensaje(err.message, 'error');
+    }
 }
 
 function escapeHtml(texto) {

@@ -9,11 +9,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
 <body>
+    <header class="app-titlebar">
+        <div class="titlebar-brand">
+            <span class="brand-name">PsyInvoice</span>
+            <span class="brand-subtitle">Gestión profesional</span>
+        </div>
+        <div class="window-controls">
+            <button id="minimize-btn" aria-label="Minimizar">−</button>
+            <button id="maximize-btn" aria-label="Maximizar">□</button>
+            <button id="close-btn" aria-label="Cerrar">×</button>
+        </div>
+    </header>
     <div class="layout">
         <aside class="sidebar">
             <div class="sidebar__brand">
                 <p class="sidebar__brand-title">PsyInvoice</p>
-                <p class="sidebar__brand-tagline">Clinical Clarity</p>
             </div>
             <nav class="sidebar__nav">
                 <a href="/pages/dashboard.html" class="sidebar__link">
@@ -75,9 +85,22 @@
                 <div class="formulario-factura__seccion">
                     <div class="campo">
                         <label for="factura-paciente">Paciente *</label>
-                        <select id="factura-paciente" class="input" required>
-                            <option value="">Selecciona un paciente...</option>
-                        </select>
+                        <div class="selector-buscable">
+                            <input
+                                type="text"
+                                id="factura-paciente"
+                                class="input"
+                                placeholder="Escribe para buscar un paciente..."
+                                autocomplete="off"
+                                role="combobox"
+                                aria-autocomplete="list"
+                                aria-controls="factura-pacientes-lista"
+                                aria-expanded="false"
+                                required
+                            >
+                            <input type="hidden" id="factura-paciente-id">
+                            <div id="factura-pacientes-lista" class="selector-buscable__opciones" role="listbox" hidden></div>
+                        </div>
                     </div>
                 </div>
 
@@ -132,6 +155,7 @@
     </div>
 
     <script src="/js/api.js"></script>
+    <script src="/js/titlebar.js"></script>
     <script src="/js/layout.js"></script>
     <script src="/js/nueva-factura.js"></script>
 </body>

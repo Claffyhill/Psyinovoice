@@ -4,24 +4,24 @@
    implementadas en CSS3 puro, sin frameworks)
    ========================================================= */
 :root {
-    --color-primary: #0058be;
-    --color-primary-hover: #00459650;
-    --color-primary-container: #2170e4;
+    --color-primary: #00252b;
+    --color-primary-hover: #164d57;
+    --color-primary-container: #0e3b43;
     --color-on-primary: #ffffff;
 
-    --color-background: #f8f9ff;
+    --color-background: #f9f9ff;
     --color-surface: #ffffff;
-    --color-surface-low: #eff4ff;
-    --color-surface-high: #dee9fc;
+    --color-surface-low: #f1f3ff;
+    --color-surface-high: #e1e8fd;
 
-    --color-outline: #727785;
-    --color-outline-variant: #c2c6d6;
+    --color-outline: #71787a;
+    --color-outline-variant: #c0c8ca;
 
-    --color-on-surface: #121c2a;
-    --color-on-surface-variant: #424754;
+    --color-on-surface: #141b2b;
+    --color-on-surface-variant: #41484a;
 
-    --color-success: #006c49;
-    --color-success-bg: #d9f7e6;
+    --color-success: #386756;
+    --color-success-bg: #b8ebd5;
     --color-warning: #924700;
     --color-warning-bg: #fdead9;
     --color-error: #ba1a1a;
@@ -29,10 +29,10 @@
 
     --radio-sm: 8px;
     --radio: 12px;
-    --radio-lg: 16px;
+    --radio-lg: 12px;
     --radio-full: 999px;
 
-    --sombra: 0 1px 2px rgba(18, 28, 42, 0.06), 0 1px 8px rgba(18, 28, 42, 0.04);
+    --sombra: 0 1px 8px rgba(20, 27, 43, 0.04);
 
     --sidebar-width: 260px;
 }
@@ -41,10 +41,74 @@
     box-sizing: border-box;
 }
 
+.app-titlebar {
+    position: relative;
+    width: 100%;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 18px;
+    background: #172e35;
+    color: white;
+    z-index: 200;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 8px rgba(0, 0, 0, 0.18);
+    -webkit-app-region: drag;
+    user-select: none;
+}
+
+.titlebar-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.brand-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.brand-subtitle {
+    color: #b7c8cb;
+    font-size: 11px;
+}
+
+.window-controls {
+    display: flex;
+    height: 100%;
+    -webkit-app-region: no-drag;
+}
+
+.window-controls button {
+    width: 46px;
+    height: 42px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: white;
+    font-family: "Segoe UI Symbol", "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.window-controls button:hover {
+    background: #29464d;
+}
+
+.window-controls button:last-child:hover {
+    background: #d94343;
+}
+
+#maximize-btn {
+    font-size: 13px;
+}
+
 body {
     margin: 0;
     font-family: 'Inter', "Segoe UI", Arial, sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     color: var(--color-on-surface);
     background-color: var(--color-background);
     line-height: 1.5;
@@ -67,26 +131,26 @@ body {
 
 .sidebar {
     width: var(--sidebar-width);
-    background-color: var(--color-surface);
-    border-right: 1px solid var(--color-outline-variant);
+    background-color: var(--color-surface-low);
+    border-right: 0;
     display: flex;
     flex-direction: column;
     position: fixed;
-    top: 0;
+    top: 42px;
     left: 0;
-    height: 100vh;
-    padding: 8px 0;
+    height: calc(100vh - 42px);
+    padding: 0;
     z-index: 50;
 }
 
 .sidebar__brand {
-    padding: 24px 24px 4px;
+    padding: 24px;
 }
 
 .sidebar__brand-title {
     margin: 0;
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 18px;
+    font-weight: 600;
     letter-spacing: -0.01em;
     color: var(--color-primary);
 }
@@ -101,39 +165,38 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
     padding: 16px 12px;
 }
 
 .sidebar__link {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
+    gap: 8px;
+    padding: 9px 12px;
     border-radius: var(--radio-sm);
     text-decoration: none;
     color: var(--color-on-surface-variant);
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 500;
-    border-left: 4px solid transparent;
+    border-left: 0;
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .sidebar__link:hover {
-    background-color: var(--color-surface-high);
+    background-color: #e9edff;
     color: var(--color-on-surface);
 }
 
 .sidebar__link--active {
-    color: var(--color-primary);
+    color: var(--color-on-primary);
     font-weight: 700;
-    background-color: var(--color-surface-low);
-    border-left-color: var(--color-primary);
+    background-color: var(--color-primary-container);
 }
 
 .sidebar__footer {
-    padding: 16px 20px;
-    border-top: 1px solid var(--color-outline-variant);
+    padding: 16px;
+    border-top: 0;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -143,8 +206,8 @@ body {
     width: 40px;
     height: 40px;
     border-radius: var(--radio-full);
-    background-color: var(--color-surface-high);
-    border: 1px solid var(--color-outline-variant);
+    background-color: #b8ebd5;
+    border: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -171,16 +234,16 @@ body {
 
 .topbar {
     position: fixed;
-    top: 0;
+    top: 42px;
     right: 0;
     left: var(--sidebar-width);
     height: 64px;
-    background-color: var(--color-surface);
-    border-bottom: 1px solid var(--color-outline-variant);
+    background-color: var(--color-background);
+    border-bottom: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 32px;
+    padding: 0 32px 0 32px;
     z-index: 40;
     gap: 16px;
 }
@@ -210,6 +273,7 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
+    flex-shrink: 0;
 }
 
 .icon-btn {
@@ -235,6 +299,66 @@ body {
     color: var(--color-error);
 }
 
+/* ---------- Selectores con búsqueda ---------- */
+
+.selector-buscable {
+    position: relative;
+}
+
+.selector-buscable__opciones {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    left: 0;
+    z-index: 20;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 5px;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radio-sm);
+    background: var(--color-surface);
+    box-shadow: 0 8px 20px rgba(20, 27, 43, 0.12);
+}
+
+.selector-buscable__opcion {
+    display: block;
+    width: 100%;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-on-surface);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.selector-buscable__opcion:hover,
+.selector-buscable__opcion:focus {
+    outline: none;
+    background: var(--color-surface-low);
+    color: var(--color-primary);
+}
+
+.selector-buscable__vacio {
+    display: block;
+    padding: 9px 10px;
+    color: var(--color-outline);
+    font-size: 13px;
+}
+
+/* ---------- Informes ---------- */
+
+.informes-panel {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.informes-panel--mensual {
+    margin-top: 24px;
+}
+
 /* ---------- Content area ---------- */
 
 .content {
@@ -242,7 +366,7 @@ body {
     margin-top: 64px;
     flex: 1;
     padding: 32px 40px 48px;
-    max-width: 1200px;
+    max-width: 1320px;
 }
 
 .content--sin-topbar {
@@ -261,13 +385,14 @@ body {
 .content__header h1 {
     margin: 0;
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.01em;
 }
 
 .content__subtitle {
     margin: 4px 0 0;
     color: var(--color-on-surface-variant);
+    font-size: 14px;
 }
 
 .aviso {
@@ -378,48 +503,167 @@ body {
     flex-shrink: 0;
 }
 
-.semana-tabla-wrapper {
+.semana-agenda {
+    min-width: 760px;
     overflow-x: auto;
+    background: var(--color-surface);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
 }
 
-.semana-tabla {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 720px;
+.semana-cabecera,
+.semana-fila {
+    display: grid;
+    grid-template-columns: 72px repeat(7, minmax(100px, 1fr));
 }
 
-.semana-tabla th,
-.semana-tabla td {
-    border: 1px solid var(--color-outline-variant);
-    padding: 10px 12px;
-    text-align: left;
-    vertical-align: top;
-    font-size: 14px;
+.semana-cabecera {
+    min-height: 64px;
+    background: var(--color-surface-low);
+    border-bottom: 1px solid rgba(192, 200, 202, 0.55);
 }
 
-.semana-tabla th {
-    background-color: var(--color-surface-low);
-    text-transform: capitalize;
-    font-size: 13px;
-}
-
-.semana-celda--libre {
+.semana-cabecera__hora,
+.semana-dia {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid rgba(192, 200, 202, 0.45);
     color: var(--color-outline);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.semana-dia {
+    flex-direction: column;
+    gap: 3px;
+}
+
+.semana-dia strong {
+    color: var(--color-primary);
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.semana-dia--hoy strong {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radio-full);
+    color: var(--color-on-primary);
+    background: var(--color-primary-container);
+}
+
+.semana-fila {
+    min-height: 84px;
+    border-bottom: 1px solid rgba(192, 200, 202, 0.45);
+}
+
+.semana-fila:last-child {
+    border-bottom: 0;
+}
+
+.semana-hora {
+    padding: 12px 8px;
+    color: var(--color-outline);
+    background: var(--color-surface-low);
+    font-size: 11px;
+    text-align: center;
+}
+
+.semana-bloque,
+.semana-cita {
+    min-width: 0;
+    margin: 5px;
+    padding: 8px;
+    border: 0;
+    border-radius: var(--radio-sm);
+    font-family: inherit;
+    text-align: left;
+}
+
+.semana-bloque {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--color-outline);
+    background: rgba(241, 243, 255, 0.5);
     cursor: pointer;
 }
 
-.semana-celda--libre:hover {
-    background-color: var(--color-surface-low);
+.semana-bloque--vacio {
+    background: transparent;
+    cursor: default;
 }
 
-.semana-celda--ocupada {
-    background-color: #e3edfb;
-    font-weight: 600;
+.semana-bloque--libre:hover {
+    color: var(--color-primary);
+    background: var(--color-surface-low);
 }
 
-.semana-celda--bloqueada {
-    background-color: var(--color-surface-low);
+.semana-bloque--bloqueado {
     color: var(--color-outline);
+    background: repeating-linear-gradient(
+        135deg,
+        var(--color-surface-low),
+        var(--color-surface-low) 7px,
+        #e6e9f4 7px,
+        #e6e9f4 14px
+    );
+    cursor: default;
+    font-size: 10px;
+}
+
+.semana-bloque .material-symbols-outlined {
+    font-size: 15px;
+}
+
+.semana-cita {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    color: var(--color-on-secondary-container);
+    background: rgba(184, 235, 213, 0.72);
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.semana-cita:hover {
+    background: var(--color-secondary-fixed);
+    transform: translateY(-1px);
+}
+
+.semana-cita strong,
+.semana-cita span,
+.semana-cita small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.semana-cita strong {
+    color: var(--color-primary);
+    font-size: 12px;
+}
+
+.semana-cita span,
+.semana-cita small {
+    font-size: 10px;
+}
+
+.semana-cita small {
+    color: var(--color-secondary);
+}
+
+.semana-cargando,
+.semana-vacia {
+    padding: 40px 20px;
+    color: var(--color-outline);
+    text-align: center;
 }
 
 .home-header {
@@ -434,7 +678,7 @@ body {
 .home-header h1 {
     margin: 0;
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.01em;
 }
 
@@ -464,7 +708,7 @@ body {
     font-size: 18px;
     padding: 0 20px 0 56px;
     border-radius: var(--radio-lg);
-    border: 1px solid var(--color-outline-variant);
+    border: 0;
     background-color: var(--color-surface);
     box-shadow: var(--sombra);
     font-family: inherit;
@@ -474,7 +718,7 @@ body {
 .home-search input:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(0, 88, 190, 0.15);
+    box-shadow: 0 0 0 3px rgba(14, 59, 67, 0.12);
 }
 
 .home-section {
@@ -547,7 +791,7 @@ body {
 
 .stat-card {
     background-color: var(--color-surface);
-    border: 1px solid var(--color-outline-variant);
+    border: 0;
     border-radius: var(--radio-lg);
     padding: 18px 24px;
     display: flex;
@@ -576,9 +820,9 @@ body {
 /* ---------- Botones ---------- */
 
 .btn {
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 600;
-    padding: 12px 22px;
+    padding: 10px 16px;
     border-radius: var(--radio-sm);
     border: none;
     cursor: pointer;
@@ -601,7 +845,7 @@ body {
 .btn--secundario {
     background-color: var(--color-surface);
     color: var(--color-on-surface);
-    border: 1px solid var(--color-outline-variant);
+    border: 0;
 }
 
 .btn--secundario:hover {
@@ -629,10 +873,10 @@ body {
 
 .input {
     width: 100%;
-    font-size: 16px;
-    padding: 12px 14px;
-    height: 44px;
-    border: 1px solid var(--color-outline-variant);
+    font-size: 14px;
+    padding: 10px 12px;
+    height: 42px;
+    border: 1px solid rgba(192, 200, 202, 0.7);
     border-radius: var(--radio-sm);
     background-color: var(--color-surface);
     color: var(--color-on-surface);
@@ -646,7 +890,7 @@ textarea.input {
 .input:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(0, 88, 190, 0.15);
+    box-shadow: 0 0 0 3px rgba(14, 59, 67, 0.12);
 }
 
 .campo {
@@ -681,7 +925,7 @@ textarea.input {
 
 .card {
     background-color: var(--color-surface);
-    border: 1px solid var(--color-outline-variant);
+    border: 0;
     border-radius: var(--radio-lg);
     box-shadow: var(--sombra);
 }
@@ -691,7 +935,7 @@ textarea.input {
 .formulario-factura {
     max-width: 560px;
     background-color: var(--color-surface);
-    border: 1px solid var(--color-outline-variant);
+    border: 0;
     border-radius: var(--radio-lg);
     box-shadow: var(--sombra);
     overflow: hidden;
@@ -825,7 +1069,7 @@ textarea.input {
 
 .table-wrapper {
     background-color: var(--color-surface);
-    border: 1px solid var(--color-outline-variant);
+    border: 0;
     border-radius: var(--radio-lg);
     overflow-x: auto;
     box-shadow: var(--sombra);
@@ -839,14 +1083,14 @@ textarea.input {
 .tabla th,
 .tabla td {
     text-align: left;
-    padding: 16px 20px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--color-outline-variant);
     white-space: nowrap;
 }
 
 .tabla th {
     color: var(--color-outline);
-    font-size: 12px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     background-color: var(--color-surface-low);
@@ -878,7 +1122,7 @@ textarea.input {
     padding: 14px 18px;
     border-radius: var(--radio-sm);
     margin-bottom: 18px;
-    font-size: 15px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1001,13 +1245,13 @@ textarea.input {
 
     .sidebar__link {
         border-left: none;
-        border-bottom: 3px solid transparent;
+        border-bottom: 0;
         padding: 10px 14px;
     }
 
     .sidebar__link--active {
         border-left-color: transparent;
-        border-bottom-color: var(--color-primary);
+        border-bottom-color: transparent;
     }
 
     .sidebar__footer {
@@ -1015,7 +1259,8 @@ textarea.input {
     }
 
     .topbar {
-        left: 0;
+        top: auto;
+        left: auto;
         position: static;
         height: auto;
         padding: 16px 20px;
@@ -1036,4 +1281,1003 @@ textarea.input {
         border-right: none;
         border-bottom: 1px solid var(--color-outline-variant);
     }
+}
+
+/* Ajustes visuales del sistema de la plantilla */
+.sidebar {
+    background: #f1f3ff;
+    box-shadow: 1px 0 8px rgba(20, 27, 43, 0.04);
+}
+
+.sidebar__brand {
+    padding: 24px 24px 12px;
+}
+
+.sidebar__brand-title {
+    letter-spacing: -0.02em;
+}
+
+.sidebar__brand-tagline {
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.sidebar__nav {
+    padding-top: 12px;
+}
+
+.sidebar__link {
+    min-height: 38px;
+}
+
+.sidebar__link .material-symbols-outlined {
+    font-size: 19px;
+}
+
+.sidebar__footer {
+    margin: 12px;
+    padding: 12px;
+    border-radius: var(--radio);
+    background: #e9edff;
+}
+
+.topbar {
+    background: rgba(249, 249, 255, 0.96);
+    backdrop-filter: blur(8px);
+}
+
+.content {
+    width: calc(100% - var(--sidebar-width));
+    max-width: none;
+    padding: 36px 48px 56px;
+}
+
+.content__header,
+.home-header {
+    margin-bottom: 32px;
+}
+
+.content__header h1,
+.home-header h1 {
+    letter-spacing: -0.025em;
+}
+
+.home-section,
+.card,
+.table-wrapper,
+.formulario-factura,
+.filtros,
+.hueco-fila,
+.semana-agenda {
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
+}
+
+.home-section__header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.home-search {
+    max-width: 760px;
+    margin-bottom: 32px;
+}
+
+.home-search input {
+    height: 52px;
+    font-size: 14px;
+    border-radius: var(--radio);
+    background: var(--color-surface);
+}
+
+.stat-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 260px));
+}
+
+.stat-card {
+    min-height: 96px;
+    justify-content: center;
+    padding: 16px 20px;
+}
+
+.stat-card__label {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 12px;
+}
+
+.stat-card__value {
+    font-size: 24px;
+    letter-spacing: -0.02em;
+}
+
+.shortcut-btn {
+    border: 0;
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
+    font-size: 13px;
+    padding: 20px 14px;
+}
+
+.shortcut-btn .material-symbols-outlined {
+    font-size: 24px;
+}
+
+.btn--primary {
+    background: var(--color-primary-container);
+}
+
+.btn--primary:hover {
+    background: var(--color-primary);
+}
+
+.btn--secundario {
+    background: var(--color-surface-low);
+    color: var(--color-primary);
+}
+
+.btn--secundario:hover {
+    background: var(--color-surface-high);
+}
+
+.filtros,
+.formulario-factura {
+    background: var(--color-surface);
+}
+
+.filtros {
+    padding: 16px 20px;
+}
+
+.formulario-factura__seccion {
+    padding: 22px 24px;
+}
+
+.formulario-factura__seccion--precio {
+    background: var(--color-surface-low);
+}
+
+.vista-tabs {
+    gap: 4px;
+    padding: 4px;
+    width: fit-content;
+    border-radius: var(--radio);
+    background: var(--color-surface-low);
+}
+
+.vista-tabs button {
+    border: 0;
+    padding: 8px 14px;
+    font-size: 13px;
+    background: transparent;
+}
+
+.vista-tabs button.activa {
+    background: var(--color-primary-container);
+    border-radius: var(--radio-sm);
+}
+
+.hueco-fila {
+    border: 0;
+    padding: 14px 18px;
+}
+
+.hueco-fila--ocupado {
+    border-left: 3px solid var(--color-primary-container);
+}
+
+.badge {
+    font-size: 11px;
+    padding: 4px 9px;
+}
+
+@media (max-width: 900px) {
+    .content {
+        width: 100%;
+        padding: 24px 20px 40px;
+    }
+
+    .stat-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .stat-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .content__header,
+    .home-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+/* ---------- Adaptación a resoluciones ---------- */
+
+@media (min-width: 901px) and (max-width: 1200px) {
+    .content {
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+
+    .shortcuts-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sidebar__brand,
+    .sidebar__footer {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+}
+
+@media (max-width: 900px) {
+    .layout {
+        display: block;
+        padding-top: 42px;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: relative;
+        top: auto;
+        height: auto;
+        min-height: 0;
+        box-shadow: none;
+    }
+
+    .sidebar__brand {
+        padding: 18px 20px 8px;
+    }
+
+    .sidebar__nav {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px;
+        padding: 8px 12px 12px;
+    }
+
+    .sidebar__link {
+        justify-content: center;
+        flex-direction: column;
+        gap: 4px;
+        min-height: 56px;
+        padding: 8px 4px;
+        text-align: center;
+        font-size: 11px;
+    }
+
+    .sidebar__link .material-symbols-outlined {
+        font-size: 20px;
+    }
+
+    .sidebar__footer {
+        display: none;
+    }
+
+    .topbar {
+        position: relative;
+        left: auto;
+        height: auto;
+        min-height: 56px;
+        padding: 10px 20px;
+    }
+
+    .topbar__search {
+        max-width: none;
+    }
+
+    .content {
+        width: 100%;
+        margin: 0;
+        padding: 28px 20px 40px;
+    }
+
+    .formulario-factura__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .formulario-factura__grid .formulario-factura__seccion:first-child {
+        border-right: 0;
+        border-bottom: 1px solid var(--color-outline-variant);
+    }
+
+    #form-configuracion > .card > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 0 !important;
+    }
+
+    .semana-agenda {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 640px) {
+    .sidebar__nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .topbar {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .topbar__search {
+        width: 100%;
+    }
+
+    .topbar__actions {
+        justify-content: flex-end;
+    }
+
+    .content {
+        padding: 24px 14px 32px;
+    }
+
+    .content__header,
+    .home-header {
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .content__header h1,
+    .home-header h1 {
+        font-size: 24px;
+    }
+
+    .home-search {
+        margin-bottom: 24px;
+    }
+
+    .home-search input {
+        height: 48px;
+    }
+
+    .shortcuts-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .shortcut-btn {
+        padding: 16px 8px;
+    }
+
+    .stat-cards {
+        gap: 10px;
+    }
+
+    .stat-card {
+        min-width: 0;
+    }
+
+    .calendario-cabecera {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .fecha-nav {
+        flex-wrap: wrap;
+    }
+
+    .fecha-nav__fecha {
+        min-width: 0;
+        flex: 1 1 100%;
+        order: -1;
+        font-size: 18px;
+    }
+
+    .calendario-cabecera > .btn {
+        justify-content: center;
+    }
+
+    .filtros {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 14px;
+    }
+
+    .filtros .campo,
+    .filtros .input,
+    .filtros button {
+        width: 100%;
+    }
+
+    .table-wrapper {
+        margin-left: -2px;
+        margin-right: -2px;
+    }
+
+    .tabla th,
+    .tabla td {
+        padding: 12px;
+    }
+
+    .modal {
+        padding: 16px 10px;
+    }
+
+    .modal__contenido {
+        padding: 20px 16px;
+    }
+
+    .formulario-factura {
+        width: 100%;
+    }
+
+    .formulario-factura__seccion {
+        padding: 18px 16px;
+    }
+
+    .acciones-factura,
+    .footer-nota {
+        width: 100%;
+    }
+}
+
+@media (max-width: 420px) {
+    .sidebar__nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sidebar__link {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding-left: 12px;
+        text-align: left;
+    }
+
+    .shortcuts-grid,
+    .stat-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .home-header .btn,
+    .content__header .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn--grande {
+        height: 50px;
+        font-size: 15px;
+    }
+
+    .fecha-nav {
+        gap: 4px;
+    }
+
+    .fecha-nav .btn {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+/* Una ventana compacta de Electron sigue usando navegación lateral. */
+@media (min-width: 761px) {
+    .layout {
+        display: flex;
+        padding-top: 42px;
+    }
+
+    .sidebar {
+        width: var(--sidebar-width);
+        position: fixed;
+        top: 42px;
+        left: 0;
+        height: calc(100vh - 42px);
+        min-height: calc(100vh - 42px);
+    }
+
+    .sidebar__brand {
+        padding: 24px 24px 12px;
+    }
+
+    .sidebar__nav {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 4px;
+        padding: 12px;
+    }
+
+    .sidebar__link {
+        min-height: 38px;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 9px 12px;
+        text-align: left;
+        font-size: 13px;
+    }
+
+    .sidebar__footer {
+        display: flex;
+    }
+
+    .topbar {
+        position: fixed;
+        top: 42px;
+        left: var(--sidebar-width);
+        right: 0;
+        height: 64px;
+        padding: 0 32px;
+    }
+
+    .content {
+        width: calc(100% - var(--sidebar-width));
+        margin-left: var(--sidebar-width);
+        margin-top: 64px;
+        padding: 36px 48px 56px;
+    }
+
+    .content--sin-topbar {
+        margin-top: 0;
+    }
+}
+
+/* La barra permanece fija y el layout reserva su altura para evitar solapamientos. */
+.app-titlebar {
+    position: fixed !important;
+    inset: 0 0 auto;
+    width: 100%;
+    height: 42px;
+}
+
+.layout {
+    padding-top: 42px !important;
+}
+
+@media (max-width: 900px) {
+    .layout {
+        padding-top: 42px !important;
+    }
+
+    .app-titlebar {
+        position: fixed !important;
+        top: 0;
+    }
+}
+
+@media (min-width: 761px) {
+    .content--sin-topbar {
+        margin-top: 42px;
+    }
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(23, 46, 53, 0.20);
+    border-radius: 10px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(23, 46, 53, 0.50);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* ---------- Calendario estilo Apple Calendar ---------- */
+
+.calendario-cabecera {
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.fecha-nav {
+    gap: 0;
+    padding: 3px;
+    border: 1px solid #d9dce4;
+    border-radius: 9px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(20, 27, 43, 0.06);
+}
+
+.fecha-nav .btn {
+    min-width: 34px;
+    height: 32px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: transparent;
+    color: #4b5563;
+}
+
+.fecha-nav .btn:hover {
+    background: #eef4ff;
+    color: #0a84ff;
+}
+
+.fecha-nav__fecha {
+    min-width: 245px;
+    padding: 0 16px;
+    color: #1d1d1f;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-align: center;
+}
+
+#btn-nueva-cita {
+    border-radius: 8px;
+    background: #0a84ff;
+    box-shadow: 0 1px 2px rgba(10, 132, 255, 0.25);
+}
+
+#btn-nueva-cita:hover {
+    background: #0077ed;
+}
+
+.vista-tabs {
+    margin-bottom: 14px;
+    padding: 3px;
+    border: 1px solid #d9dce4;
+    border-radius: 8px;
+    background: #eef0f4;
+}
+
+.vista-tabs button {
+    min-width: 112px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    color: #596273;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.vista-tabs button.activa {
+    color: #1d1d1f;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(20, 27, 43, 0.14);
+}
+
+.semana-agenda {
+    min-width: 820px;
+    overflow: auto;
+    border: 1px solid #dfe2e8;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(20, 27, 43, 0.06);
+}
+
+.semana-cabecera {
+    min-height: 70px;
+    background: #fbfbfd;
+    border-bottom: 1px solid #dfe2e8;
+}
+
+.semana-cabecera__hora {
+    align-items: flex-end;
+    padding-bottom: 12px;
+    color: #8a909b;
+    font-size: 10px;
+}
+
+.semana-dia {
+    gap: 7px;
+    border-right: 1px solid #edf0f3;
+    color: #7a818d;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.semana-dia strong {
+    color: #30343b;
+    font-size: 22px;
+    font-weight: 500;
+}
+
+.semana-dia--hoy {
+    color: #0a84ff;
+}
+
+.semana-dia--hoy strong {
+    width: 30px;
+    height: 30px;
+    color: #ffffff;
+    background: #0a84ff;
+    font-weight: 600;
+}
+
+.semana-fila {
+    min-height: 76px;
+    border-bottom: 1px solid #edf0f3;
+}
+
+.semana-fila:last-child {
+    border-bottom: 0;
+}
+
+.semana-hora {
+    padding: 9px 8px;
+    color: #969ca6;
+    background: #fbfbfd;
+    border-right: 1px solid #edf0f3;
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.semana-bloque,
+.semana-cita {
+    margin: 4px;
+    border-radius: 6px;
+}
+
+.semana-bloque {
+    color: #a0a6af;
+    background: transparent;
+    font-size: 10px;
+}
+
+.semana-bloque--libre:hover {
+    color: #0a84ff;
+    background: #f0f7ff;
+}
+
+.semana-bloque--bloqueado {
+    color: #a4a9b2;
+    background: repeating-linear-gradient(
+        135deg,
+        #f7f7f9,
+        #f7f7f9 6px,
+        #eeeeF2 6px,
+        #eeeeF2 12px
+    );
+}
+
+.semana-cita {
+    align-items: flex-start;
+    padding: 8px 9px;
+    border-left: 3px solid #0a84ff;
+    color: #1d1d1f;
+    background: #eaf4ff;
+    box-shadow: none;
+}
+
+.semana-cita:hover {
+    background: #dceeff;
+    transform: none;
+}
+
+.semana-cita strong {
+    color: #1468b8;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.semana-cita span {
+    color: #536171;
+    font-size: 10px;
+}
+
+.semana-cita small {
+    color: #7c8794;
+    font-size: 9px;
+}
+
+@media (max-width: 640px) {
+    .calendario-cabecera {
+        align-items: stretch;
+    }
+
+    .fecha-nav {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .fecha-nav__fecha {
+        flex: 1 1 100%;
+        min-width: 0;
+        order: -1;
+        padding: 7px 8px 9px;
+        font-size: 17px;
+    }
+
+    .semana-agenda {
+        min-width: 760px;
+    }
+}
+
+/* ---------- Integración del calendario con PsyInvoice ---------- */
+
+.calendario-page-header {
+    margin-bottom: 20px;
+}
+
+.calendario-page-header h1 {
+    color: var(--color-primary);
+}
+
+.calendario-page-header .content__subtitle {
+    color: var(--color-on-surface-variant);
+}
+
+.calendario-cabecera {
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.fecha-nav {
+    border-color: var(--color-outline-variant);
+    border-radius: var(--radio);
+    background: var(--color-surface);
+    box-shadow: var(--sombra);
+}
+
+.fecha-nav .btn {
+    color: var(--color-on-surface-variant);
+}
+
+.fecha-nav .btn:hover {
+    color: var(--color-primary);
+    background: var(--color-surface-low);
+}
+
+.fecha-nav__fecha {
+    color: var(--color-primary);
+}
+
+#btn-nueva-cita {
+    background: var(--color-primary);
+    box-shadow: none;
+}
+
+#btn-nueva-cita:hover {
+    background: var(--color-primary-hover);
+}
+
+.vista-tabs {
+    width: fit-content;
+    border-color: var(--color-outline-variant);
+    background: var(--color-surface-low);
+}
+
+.vista-tabs button {
+    color: var(--color-on-surface-variant);
+}
+
+.vista-tabs button.activa {
+    color: var(--color-on-primary);
+    background: var(--color-primary);
+    box-shadow: none;
+}
+
+.semana-agenda {
+    min-width: 760px;
+    border-color: var(--color-outline-variant);
+    border-radius: var(--radio);
+    background: var(--color-surface);
+    box-shadow: var(--sombra);
+}
+
+.semana-cabecera,
+.semana-hora {
+    background: var(--color-surface-low);
+}
+
+.semana-cabecera {
+    border-bottom-color: var(--color-outline-variant);
+}
+
+.semana-cabecera__hora,
+.semana-hora {
+    color: var(--color-outline);
+}
+
+.semana-dia {
+    border-right-color: rgba(192, 200, 202, 0.45);
+    color: var(--color-outline);
+}
+
+.semana-dia strong {
+    color: var(--color-primary);
+}
+
+.semana-dia--hoy {
+    color: var(--color-primary);
+}
+
+.semana-dia--hoy strong {
+    background: var(--color-primary-container);
+}
+
+.semana-dia--hoy:not(.semana-dia--seleccionado) strong {
+    width: auto;
+    height: auto;
+    display: inline;
+    border-radius: 0;
+    color: var(--color-outline);
+    background: transparent;
+}
+
+.semana-dia--hoy:not(.semana-dia--seleccionado) {
+    color: var(--color-outline);
+    background: transparent;
+    box-shadow: none;
+}
+
+.semana-dia--seleccionado {
+    background: rgba(184, 235, 213, 0.42);
+    box-shadow: inset 0 -3px 0 var(--color-success);
+}
+
+.semana-dia--seleccionado strong {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radio-full);
+    color: var(--color-primary);
+    background: var(--color-success-bg);
+    box-shadow: inset 0 0 0 1px rgba(56, 103, 86, 0.18);
+}
+
+.semana-dia--hoy.semana-dia--seleccionado strong {
+    color: var(--color-on-primary);
+    background: var(--color-primary-container);
+    box-shadow: none;
+}
+
+.semana-fila {
+    border-bottom-color: rgba(192, 200, 202, 0.45);
+}
+
+.semana-bloque--libre:hover {
+    color: var(--color-primary);
+    background: var(--color-surface-low);
+}
+
+.semana-bloque--bloqueado {
+    color: var(--color-outline);
+    background: repeating-linear-gradient(
+        135deg,
+        var(--color-surface-low),
+        var(--color-surface-low) 7px,
+        #e6e9f4 7px,
+        #e6e9f4 14px
+    );
+}
+
+.semana-cita {
+    border-left-color: var(--color-success);
+    color: var(--color-on-surface);
+    background: rgba(184, 235, 213, 0.72);
+}
+
+.semana-cita:hover {
+    background: var(--color-success-bg);
+}
+
+.semana-cita strong {
+    color: var(--color-primary);
+}
+
+.semana-cita span,
+.semana-cita small {
+    color: var(--color-on-surface-variant);
+}
+
+* {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }

@@ -1,10 +1,13 @@
-const selectPaciente = document.getElementById('factura-paciente');
+const campoPaciente = document.getElementById('factura-paciente');
+const campoPacienteId = document.getElementById('factura-paciente-id');
+const listaPacientes = document.getElementById('factura-pacientes-lista');
 const campoFecha = document.getElementById('factura-fecha');
 const campoConcepto = document.getElementById('factura-concepto');
 const campoImporte = document.getElementById('factura-importe');
 const campoObservaciones = document.getElementById('factura-observaciones');
 const form = document.getElementById('form-factura');
 const mensajeEl = document.getElementById('mensaje');
+let pacientesDisponibles = [];
 
 function mostrarMensaje(texto, tipo) {
     mensajeEl.textContent = texto;
@@ -25,15 +28,49 @@ function hoyEnFormatoInput() {
 }
 
 async function cargarPacientesEnSelector() {
-    const pacientes = await api.getPatients();
-
-    selectPaciente.innerHTML = '<option value="">Selecciona un paciente...</option>' +
-        pacientes.map((p) => `<option value="${p.id}">${p.nombre} ${p.apellidos}</option>`).join('');
+    pacientesDisponibles = await api.getPatients();
 
     const idDesdeUrl = new URLSearchParams(window.location.search).get('patient_id');
-    if (idDesdeUrl) {
-        selectPaciente.value = idDesdeUrl;
+    const pacienteInicial = pacientesDisponibles.find((p) => p.id === idDesdeUrl);
+
+    if (pacienteInicial) {
+        seleccionarPaciente(pacienteInicial);
     }
+}
+
+function mostrarOpcionesPacientes() {
+    const termino = campoPaciente.value.trim().toLocaleLowerCase('es');
+    const coincidencias = pacientesDisponibles.filter((paciente) => (
+        `${paciente.nombre} ${paciente.apellidos}`.toLocaleLowerCase('es').includes(termino)
+    ));
+
+    listaPacientes.innerHTML = coincidencias.length > 0
+        ? coincidencias.map((paciente) => `
+            <button type="button" class="selector-buscable__opcion" role="option" data-paciente-id="${paciente.id}">
+                ${escapeHtml(`${paciente.nombre} ${paciente.apellidos}`)}
+            </button>
+        `).join('')
+        : '<span class="selector-buscable__vacio">No se encontraron pacientes.</span>';
+
+    listaPacientes.hidden = false;
+    campoPaciente.setAttribute('aria-expanded', 'true');
+}
+
+function ocultarOpcionesPacientes() {
+    listaPacientes.hidden = true;
+    campoPaciente.setAttribute('aria-expanded', 'false');
+}
+
+function seleccionarPaciente(paciente) {
+    campoPaciente.value = `${paciente.nombre} ${paciente.apellidos}`;
+    campoPacienteId.value = paciente.id;
+    ocultarOpcionesPacientes();
+}
+
+function escapeHtml(texto) {
+    const div = document.createElement('div');
+    div.textContent = texto;
+    return div.innerHTML;
 }
 
 async function cargarValoresPorDefecto() {
@@ -54,21 +91,29 @@ async function inicializar() {
 }
 
 function restablecerFormularioParaSiguienteFactura() {
-    selectPaciente.value = '';
+    campoPaciente.value = '';
+    campoPacienteId.value = '';
     campoObservaciones.value = '';
     campoFecha.value = hoyEnFormatoInput();
-    selectPaciente.focus();
+    campoPaciente.focus();
 }
 
 async function manejarEnvioFormulario(evento) {
     evento.preventDefault();
     ocultarMensaje();
 
+    if (!campoPacienteId.value) {
+        mostrarMensaje('Selecciona un paciente de la lista.', 'error');
+        campoPaciente.focus();
+        mostrarOpcionesPacientes();
+        return;
+    }
+
     const importeEnEuros = Number(campoImporte.value);
     const importeCentimos = Math.round(importeEnEuros * 100);
 
     const factura = {
-        patient_id: selectPaciente.value,
+        patient_id: campoPacienteId.value,
         fecha: campoFecha.value,
         concepto: campoConcepto.value.trim(),
         importe_centimos: importeCentimos,
@@ -84,6 +129,27 @@ async function manejarEnvioFormulario(evento) {
         mostrarMensaje(err.message, 'error');
     }
 }
+
+campoPaciente.addEventListener('input', () => {
+    campoPacienteId.value = '';
+    mostrarOpcionesPacientes();
+});
+
+campoPaciente.addEventListener('focus', mostrarOpcionesPacientes);
+
+listaPacientes.addEventListener('click', (evento) => {
+    const opcion = evento.target.closest('[data-paciente-id]');
+    if (!opcion) return;
+
+    const paciente = pacientesDisponibles.find((item) => item.id === opcion.dataset.pacienteId);
+    if (paciente) seleccionarPaciente(paciente);
+});
+
+document.addEventListener('click', (evento) => {
+    if (!evento.target.closest('.selector-buscable')) {
+        ocultarOpcionesPacientes();
+    }
+});
 
 form.addEventListener('submit', manejarEnvioFormulario);
 

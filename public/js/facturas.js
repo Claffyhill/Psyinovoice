@@ -85,7 +85,7 @@ async function cargarFacturas() {
     }
 }
 
-function descargarTrimestrePdf() {
+async function descargarTrimestrePdf() {
     ocultarMensaje();
 
     const year = selectAnio.value;
@@ -96,7 +96,11 @@ function descargarTrimestrePdf() {
         return;
     }
 
-    window.location.href = `/api/invoices/quarterly/pdf?year=${encodeURIComponent(year)}&quarter=${encodeURIComponent(quarter)}`;
+    try {
+        await api.descargarPdfTrimestral(year, quarter);
+    } catch (err) {
+        mostrarMensaje(err.message, 'error');
+    }
 }
 
 btnDescargarTrimestre.addEventListener('click', descargarTrimestrePdf);

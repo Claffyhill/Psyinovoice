@@ -40,7 +40,7 @@ const campoEstado = document.getElementById('cita-estado');
 const campoNotas = document.getElementById('cita-notas');
 
 let fechaActual = hoyISO();
-let vistaActiva = 'diaria';
+let vistaActiva = 'semanal';
 let ultimosHuecos = [];
 let estadoOriginalEdicion = null;
 
@@ -86,20 +86,43 @@ function actualizarCabeceraFecha() {
     fechaSeleccionadaEl.textContent = formateadorFechaLarga.format(fechaUTC(fechaActual));
 }
 
+function actualizarEtiquetasNavegacion() {
+    const unidad = vistaActiva === 'semanal' ? 'semana' : 'día';
+    const unidadAnterior = vistaActiva === 'semanal' ? 'semana anterior' : 'día anterior';
+    const unidadSiguiente = vistaActiva === 'semanal' ? 'semana siguiente' : 'día siguiente';
+
+    btnDiaAnterior.setAttribute('aria-label', `Ir a la ${unidadAnterior}`);
+    btnDiaSiguiente.setAttribute('aria-label', `Ir al ${unidadSiguiente}`);
+    btnDiaAnterior.title = `Ir a la ${unidadAnterior}`;
+    btnDiaSiguiente.title = `Ir al ${unidadSiguiente}`;
+    btnHoy.title = `Ir a hoy desde la vista ${unidad}`;
+}
+
 async function irADia(fechaIso) {
     fechaActual = fechaIso;
     actualizarCabeceraFecha();
     await recargarVistaActiva();
 }
 
-btnDiaAnterior.addEventListener('click', () => irADia(sumarDias(fechaActual, -1)));
-btnDiaSiguiente.addEventListener('click', () => irADia(sumarDias(fechaActual, 1)));
+function desplazamientoNavegacion() {
+    return vistaActiva === 'semanal' ? 7 : 1;
+}
+
+btnDiaAnterior.addEventListener('click', () => {
+    const desplazamiento = desplazamientoNavegacion();
+    irADia(sumarDias(fechaActual, -desplazamiento));
+});
+btnDiaSiguiente.addEventListener('click', () => {
+    const desplazamiento = desplazamientoNavegacion();
+    irADia(sumarDias(fechaActual, desplazamiento));
+});
 btnHoy.addEventListener('click', () => irADia(hoyISO()));
 
 /* ========== Cambio de vista ========== */
 
 function cambiarVista(vista) {
     vistaActiva = vista;
+    actualizarEtiquetasNavegacion();
     tabDiaria.classList.toggle('activa', vista === 'diaria');
     tabSemanal.classList.toggle('activa', vista === 'semanal');
     vistaDiaria.hidden = vista !== 'diaria';
@@ -218,7 +241,7 @@ function inicioDeSemana(fechaIso) {
 }
 
 async function cargarVistaSemanal() {
-    semanaCuerpo.innerHTML = '<tr><td>Cargando...</td></tr>';
+    semanaCuerpo.innerHTML = '<div class="semana-cargando">Cargando...</div>';
     try {
         const lunes = inicioDeSemana(fechaActual);
         const dias = Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i));
@@ -230,15 +253,28 @@ async function cargarVistaSemanal() {
 }
 
 function renderSemana(dias, huecosPorDia) {
-    semanaCabecera.innerHTML = '<th></th>' +
-        dias.map((dia) => `<th>${formateadorDiaCorto.format(fechaUTC(dia))}</th>`).join('');
+    semanaCabecera.innerHTML = '<div class="semana-cabecera__hora">Hora</div>' +
+        dias.map((dia) => {
+            const fecha = fechaUTC(dia);
+            const esHoy = dia === hoyISO();
+            const esSeleccionado = dia === fechaActual;
+            const clases = [
+                'semana-dia',
+                esHoy && esSeleccionado ? 'semana-dia--hoy' : '',
+                esSeleccionado ? 'semana-dia--seleccionado' : ''
+            ].filter(Boolean).join(' ');
+            return `<div class="${clases}"${esSeleccionado ? ' aria-current="date"' : ''}>
+                <span>${formateadorDiaCorto.format(fecha).split(' ')[0]}</span>
+                <strong>${fecha.getUTCDate()}</strong>
+            </div>`;
+        }).join('');
 
     const horasUnicas = new Set();
     huecosPorDia.forEach((huecos) => huecos.forEach((h) => horasUnicas.add(h.startTime)));
     const horasOrdenadas = Array.from(horasUnicas).sort();
 
     if (horasOrdenadas.length === 0) {
-        semanaCuerpo.innerHTML = '<tr><td>No hay horario laboral configurado esta semana.</td></tr>';
+        semanaCuerpo.innerHTML = '<div class="semana-vacia">No hay horario laboral configurado esta semana.</div>';
         return;
     }
 
@@ -247,25 +283,46 @@ function renderSemana(dias, huecosPorDia) {
             const hueco = huecosPorDia[indice].find((h) => h.startTime === hora);
 
             if (!hueco) {
-                return '<td>—</td>';
+                return '<div class="semana-bloque semana-bloque--vacio"></div>';
             }
             if (hueco.blocked) {
-                return '<td class="semana-celda--bloqueada">No disponible</td>';
+                return `<div class="semana-bloque semana-bloque--bloqueado">
+                    <span class="material-symbols-outlined">block</span>
+                    <span>No disponible</span>
+                </div>`;
             }
             if (hueco.appointment) {
                 const cita = hueco.appointment;
-                return `<td class="semana-celda--ocupada">${escapeHtml(cita.patientFirstName)} ${escapeHtml(cita.patientLastName.charAt(0))}.</td>`;
+                return `<button type="button" class="semana-cita semana-cita--ocupada" data-editar-cita-semana="${cita.id}">
+                    <strong>${escapeHtml(cita.patientFirstName)} ${escapeHtml(cita.patientLastName)}</strong>
+                    <span>${hora} · ${euros(cita.amountCents)}</span>
+                    <small>${ESTADOS_TEXTO[cita.status] || 'Cita'}</small>
+                </button>`;
             }
-            return `<td class="semana-celda--libre" data-crear-cita-semana="${dia}|${hora}">Libre</td>`;
+            return `<button type="button" class="semana-bloque semana-bloque--libre" data-crear-cita-semana="${dia}|${hora}">
+                <span class="material-symbols-outlined">add</span>
+                <span>Disponible</span>
+            </button>`;
         }).join('');
 
-        return `<tr><td><strong>${hora}</strong></td>${celdas}</tr>`;
+        return `<div class="semana-fila">
+            <div class="semana-hora">${hora}</div>
+            ${celdas}
+        </div>`;
     }).join('');
 
     semanaCuerpo.querySelectorAll('[data-crear-cita-semana]').forEach((celda) => {
         celda.addEventListener('click', () => {
             const [dia, hora] = celda.dataset.crearCitaSemana.split('|');
             abrirModalNuevaCita(dia, hora);
+        });
+    });
+
+    semanaCuerpo.querySelectorAll('[data-editar-cita-semana]').forEach((boton) => {
+        boton.addEventListener('click', () => {
+            const id = boton.dataset.editarCitaSemana;
+            const hueco = huecosPorDia.flat().find((item) => item.appointment && item.appointment.id === id);
+            if (hueco) abrirModalEdicion(hueco.appointment);
         });
     });
 }
@@ -364,5 +421,10 @@ form.addEventListener('submit', manejarEnvioFormulario);
 
 /* ========== Inicialización ========== */
 
+actualizarEtiquetasNavegacion();
 actualizarCabeceraFecha();
-cargarVistaDiaria();
+tabDiaria.classList.remove('activa');
+tabSemanal.classList.add('activa');
+vistaDiaria.hidden = true;
+vistaSemanal.hidden = false;
+cargarVistaSemanal();

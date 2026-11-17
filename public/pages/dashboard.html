@@ -9,6 +9,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
 <body>
+    <header class="app-titlebar">
+        <div class="titlebar-brand">
+            <span class="brand-name">PsyInvoice</span>
+            <span class="brand-subtitle">Gestión profesional</span>
+        </div>
+        <div class="window-controls">
+            <button id="minimize-btn" aria-label="Minimizar">−</button>
+            <button id="maximize-btn" aria-label="Maximizar">□</button>
+            <button id="close-btn" aria-label="Cerrar">×</button>
+        </div>
+    </header>
     <div class="layout">
         <aside class="sidebar">
             <div class="sidebar__brand">
@@ -44,6 +55,13 @@
                     <span>Configuración</span>
                 </a>
             </nav>
+            <div class="sidebar__footer">
+                <div class="avatar" id="sidebar-avatar-iniciales">--</div>
+                <div>
+                    <p class="sidebar__footer-name" id="sidebar-nombre-profesional">Cargando...</p>
+                    <p class="sidebar__footer-role">Psicóloga</p>
+                </div>
+            </div>
         </aside>
 
         <main class="content content--sin-topbar">
@@ -138,6 +156,8 @@
     </div>
 
     <script src="/js/api.js"></script>
+    <script src="/js/titlebar.js"></script>
+    <script src="/js/layout.js"></script>
     <script src="/js/dashboard.js"></script>
 </body>
 </html>
