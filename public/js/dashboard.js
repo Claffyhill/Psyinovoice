@@ -104,8 +104,21 @@ function renderResumenTrimestre(invoices) {
     statFacturas.textContent = delTrimestre.length;
     statTotal.textContent = euros(totalFacturado);
 
-    btnInformeTrimestre.href = `/api/invoices/quarterly/pdf?year=${year}&quarter=${quarter}`;
+    btnInformeTrimestre.dataset.year = year;
+    btnInformeTrimestre.dataset.quarter = quarter;
 }
+
+btnInformeTrimestre.addEventListener('click', async (event) => {
+    event.preventDefault();
+    try {
+        await api.descargarPdfTrimestral(
+            btnInformeTrimestre.dataset.year,
+            btnInformeTrimestre.dataset.quarter
+        );
+    } catch (err) {
+        mostrarMensaje(err.message, 'error');
+    }
+});
 
 async function cargarDatos() {
     try {

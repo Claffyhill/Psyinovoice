@@ -16,6 +16,28 @@ async function request(path, options = {}) {
     return data;
 }
 
+async function descargarPdfTrimestral(year, quarter) {
+    const response = await fetch(
+        `${BASE_URL}/invoices/quarterly/pdf?year=${encodeURIComponent(year)}&quarter=${encodeURIComponent(quarter)}`,
+        { headers: { Accept: 'application/pdf, application/json' } }
+    );
+
+    if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data && data.error ? data.error : 'No se ha podido generar el informe.');
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = `PsyInvoice-${year}-T${quarter}.pdf`;
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+    URL.revokeObjectURL(url);
+}
+
 const api = {
     getPatients(search) {
         const query = search ? `?search=${encodeURIComponent(search)}` : '';
@@ -50,6 +72,7 @@ const api = {
         const query = params.toString() ? `?${params.toString()}` : '';
         return request(`/invoices${query}`);
     },
+    descargarPdfTrimestral,
     createInvoice(invoice) {
         return request('/invoices', {
             method: 'POST',

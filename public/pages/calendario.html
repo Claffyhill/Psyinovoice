@@ -9,6 +9,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
 <body>
+    <header class="app-titlebar">
+        <div class="titlebar-brand">
+            <span class="brand-name">PsyInvoice</span>
+            <span class="brand-subtitle">Gestión profesional</span>
+        </div>
+        <div class="window-controls">
+            <button id="minimize-btn" aria-label="Minimizar">−</button>
+            <button id="maximize-btn" aria-label="Maximizar">□</button>
+            <button id="close-btn" aria-label="Cerrar">×</button>
+        </div>
+    </header>
     <div class="layout">
         <aside class="sidebar">
             <div class="sidebar__brand">
@@ -63,6 +74,13 @@
         </header>
 
         <main class="content content--ancho">
+            <div class="content__header calendario-page-header">
+                <div>
+                    <h1>Calendario</h1>
+                    <p class="content__subtitle">Organiza tus citas y consulta tu disponibilidad semanal.</p>
+                </div>
+            </div>
+
             <div class="calendario-cabecera">
                 <div class="fecha-nav">
                     <button type="button" id="btn-dia-anterior" class="btn btn--secundario btn--pequeno" aria-label="Día anterior">
@@ -83,26 +101,22 @@
             <div id="mensaje" class="mensaje" hidden></div>
 
             <div class="vista-tabs">
-                <button type="button" id="tab-diaria" class="activa">Vista diaria</button>
-                <button type="button" id="tab-semanal">Vista semanal</button>
+                <button type="button" id="tab-diaria">Vista diaria</button>
+                <button type="button" id="tab-semanal" class="activa">Vista semanal</button>
             </div>
 
-            <section id="vista-diaria">
+            <section id="vista-diaria" hidden>
                 <div class="huecos-lista" id="huecos-lista">
                     <p class="tabla__vacio">Cargando disponibilidad...</p>
                 </div>
             </section>
 
-            <section id="vista-semanal" hidden>
-                <div class="semana-tabla-wrapper">
-                    <table class="semana-tabla">
-                        <thead>
-                            <tr id="semana-cabecera"></tr>
-                        </thead>
-                        <tbody id="semana-cuerpo">
-                            <tr><td>Cargando...</td></tr>
-                        </tbody>
-                    </table>
+            <section id="vista-semanal">
+                <div class="semana-agenda" aria-label="Agenda semanal">
+                    <div class="semana-cabecera" id="semana-cabecera"></div>
+                    <div class="semana-cuerpo" id="semana-cuerpo">
+                        <div class="semana-cargando">Cargando...</div>
+                    </div>
                 </div>
             </section>
         </main>
@@ -166,6 +180,7 @@
     </div>
 
     <script src="/js/api.js"></script>
+    <script src="/js/titlebar.js"></script>
     <script src="/js/layout.js"></script>
     <script src="/js/calendario.js"></script>
 </body>

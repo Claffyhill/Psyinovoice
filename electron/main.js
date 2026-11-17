@@ -1,5 +1,5 @@
 
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const { spawn } = require('node:child_process');
 const path = require('node:path');
 const net = require('node:net');
@@ -42,6 +42,43 @@ const SERVER_URL = 'http://127.0.0.1:3000';
 
 const MONGO_URI =
     `mongodb://127.0.0.1:${MONGO_PORT}/?directConnection=true`;
+
+function notifyMaximizedState() {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send(
+            'window-maximized-change',
+            mainWindow.isMaximized()
+        );
+    }
+}
+
+ipcMain.handle('window-is-maximized', () => (
+    mainWindow && !mainWindow.isDestroyed()
+        ? mainWindow.isMaximized()
+        : false
+));
+
+ipcMain.on('window-minimize', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.minimize();
+    }
+});
+
+ipcMain.on('window-maximize', () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+
+    if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize();
+    } else {
+        mainWindow.maximize();
+    }
+});
+
+ipcMain.on('window-close', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.close();
+    }
+});
 
 // =========================================================
 // Carga de la ubicación de los datos (Windows)
@@ -391,12 +428,19 @@ async function waitForMongoPrimary(timeout = 30000) {
 
 async function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 1400,
+        width: 1440,
         height: 900,
-        minWidth: 1000,
+        minWidth: 1100,
         minHeight: 700,
+        fullscreen: false,
+
+        frame: false,
+        titleBarStyle: 'hidden',
+
+        backgroundColor: '#f7f9f8',
         show: false,
         webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             nodeIntegration: false
         }
@@ -406,7 +450,12 @@ async function createWindow() {
 
     mainWindow.once('ready-to-show', () => {
         mainWindow.show();
+        mainWindow.maximize();
+        notifyMaximizedState();
     });
+
+    mainWindow.on('maximize', notifyMaximizedState);
+    mainWindow.on('unmaximize', notifyMaximizedState);
 
     mainWindow.on('closed', () => {
         mainWindow = null;
